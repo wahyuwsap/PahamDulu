@@ -47,6 +47,9 @@ class Register extends Component
 
         Auth::login($user);
 
+        if ($user->role === 'admin') {
+            return redirect()->intended(route('admin.dashboard'));
+        }
         return redirect()->intended(route('dashboard'));
     }
 
