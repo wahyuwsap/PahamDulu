@@ -70,7 +70,7 @@
                         <div
                             class="w-10 h-10 rounded-full bg-gradient-to-br from-[#CCFF00] to-[#00F0FF] p-0.5 shadow-[0_0_15px_rgba(204,255,0,0.2)]">
                             <img class="w-full h-full rounded-full object-cover border-2 border-[#020617]"
-                                src="{{ auth()->user()->avatar_path ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name ?? 'User') . '&background=1E293B&color=CCFF00' }}"
+                                src="{{ auth()->user()->avatar_path ? Storage::url(auth()->user()->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name ?? 'User') . '&background=1E293B&color=CCFF00' }}"
                                 alt="Avatar">
                         </div>
                     </button>
