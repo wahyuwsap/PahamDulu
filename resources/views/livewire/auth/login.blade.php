@@ -6,9 +6,12 @@
         
         <!-- Left Side: Branding (Logo & Text) -->
         <div class="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-            <div class="flex items-center gap-4 mb-4">
-                <img src="{{ asset('images/sika.png') }}" alt="SIKA Logo" class="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-widest drop-shadow-lg">SIKA</h1>
+            <div class="flex flex-col items-center md:items-start mb-8 relative">
+                <!-- Subtle glow effect behind logo -->
+                <div class="absolute top-1/2 left-1/2 md:left-32 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/10 rounded-full blur-[80px] pointer-events-none"></div>
+                
+                <img src="{{ asset('images/PahamDuluPutih.png') }}" alt="PahamDulu Logo" class="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain drop-shadow-[0_20px_40px_rgba(255,255,255,0.2)] transform hover:scale-105 hover:rotate-2 transition-all duration-500 relative z-10">
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-widest drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)] relative z-10">PahamDulu</h1>
             </div>
             <h2 class="text-xl md:text-2xl font-semibold text-white/90 mb-3 drop-shadow-md">Sistem Informasi Kampus Akademik</h2>
             <p class="text-sm md:text-base text-white/70 max-w-md font-mono">
