@@ -83,10 +83,10 @@
                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
                         class="absolute right-0 mt-3 w-56 rounded-2xl bg-[#1E293B]/80 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-hidden py-2 z-50">
-                        <a href="#"
+                        <a href="{{ route('profile.edit') }}"
                             class="block px-4 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors">Edit
                             Profile</a>
-                        <a href="#"
+                        <a href="{{ route('profile.password') }}"
                             class="block px-4 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors">Ganti
                             Sandi</a>
                         <div class="border-t border-slate-700/50 my-1"></div>

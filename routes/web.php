@@ -13,6 +13,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('/modul/{id}', \App\Livewire\ModuleViewer::class)->name('modul.show');
+    Route::get('/profile/edit', \App\Livewire\Profile\EditProfile::class)->name('profile.edit');
+    Route::get('/profile/password', \App\Livewire\Profile\ChangePassword::class)->name('profile.password');
 
     Route::get('/admin/dashboard', function () {
         return 'Admin Dashboard Kosong';

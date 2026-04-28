@@ -8,6 +8,7 @@ use Livewire\Attributes\Layout;
 use App\Models\Module;
 use App\Models\ModuleVideo;
 use App\Models\UserModuleProgress;
+use App\Models\UserVideoProgress;
 use Livewire\Attributes\Computed;
 
 #[Layout('components.layouts.dashboard')]
@@ -36,6 +37,22 @@ class ModuleViewer extends Component
         
         if ($this->activeModule->videos->isNotEmpty()) {
             $this->activeVideo = $this->activeModule->videos->first();
+        }
+
+        // Load progress from database
+        if (auth()->check()) {
+            $this->watchedVideos = UserVideoProgress::where('user_id', auth()->id())
+                ->whereIn('video_id', $this->activeModule->videos->pluck('id'))
+                ->pluck('video_id')
+                ->toArray();
+
+            $progress = UserModuleProgress::where('user_id', auth()->id())
+                ->where('module_id', $this->activeModule->id)
+                ->first();
+
+            if ($progress && $progress->is_completed) {
+                $this->finalScore = $progress->score;
+            }
         }
     }
 
@@ -88,6 +105,13 @@ class ModuleViewer extends Component
     {
         if (!in_array($this->activeVideo->id, $this->watchedVideos)) {
             $this->watchedVideos[] = $this->activeVideo->id;
+
+            if (auth()->check()) {
+                UserVideoProgress::updateOrCreate([
+                    'user_id' => auth()->id(),
+                    'video_id' => $this->activeVideo->id
+                ]);
+            }
         }
     }
 
