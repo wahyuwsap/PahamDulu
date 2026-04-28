@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('module_id')->constrained()->cascadeOnDelete();
             $table->boolean('is_unlocked')->default(false);
             $table->boolean('is_completed')->default(false);
+            $table->integer('score')->default(0);
             $table->timestamps();
             
             $table->unique(['user_id', 'module_id']);

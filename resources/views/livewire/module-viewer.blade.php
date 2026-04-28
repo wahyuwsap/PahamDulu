@@ -14,14 +14,7 @@
             <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">{{ $activeVideo ? $activeVideo->title : 'Belum ada video' }}</h1>
         </div>
         <div class="hidden md:flex gap-2">
-            <button class="px-4 py-2 rounded-xl bg-[#1E293B] border border-white/10 text-white font-medium hover:bg-white/5 transition-colors text-sm flex items-center gap-2 spring-bounce">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                Sebelumnya
-            </button>
-            <button class="px-4 py-2 rounded-xl bg-[#00F0FF] text-black font-bold hover:bg-[#5cffff] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all text-sm flex items-center gap-2 spring-bounce">
-                Selanjutnya
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
+            <!-- Buttons dipindahkan ke bawah -->
         </div>
     </div>
 
@@ -105,75 +98,114 @@
         </div>
         @endif
 
-        <div class="relative z-10 flex flex-col md:flex-row justify-between gap-8">
-            <!-- Question -->
-            <div class="w-full md:w-1/2">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-4">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Evaluasi Pemahaman
+        <div class="relative z-10 space-y-12">
+            @foreach($this->paginatedQuizzes as $index => $quiz)
+            <div class="flex flex-col md:flex-row justify-between gap-8 border-b border-white/5 pb-8 last:border-0 last:pb-0">
+                <!-- Question -->
+                <div class="w-full md:w-1/2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-4">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Soal {{ ($currentPage - 1) * $perPage + $loop->iteration }} dari {{ $activeModule->quizzes->count() }}
+                    </div>
+                    
+                    <h2 class="text-xl md:text-2xl font-bold text-white leading-relaxed">{{ $quiz->question }}</h2>
                 </div>
-                
-                <h2 class="text-2xl font-bold text-white leading-relaxed">Tag HTML mana yang digunakan untuk menyisipkan gaya CSS secara internal ke dalam halaman web?</h2>
-                
-                <div class="mt-8 flex items-center gap-4 text-sm font-mono text-slate-400">
-                    <span class="flex items-center gap-1"><svg class="w-4 h-4 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 2 Menit</span>
-                    <span>|</span>
-                    <span>Soal 1 dari 5</span>
-                </div>
-            </div>
 
-            <!-- Options -->
-            <div class="w-full md:w-1/2 space-y-3">
-                @php
-                    $options = [
-                        'A' => '&lt;style&gt;',
-                        'B' => '&lt;script&gt;',
-                        'C' => '&lt;css&gt;',
-                        'D' => '&lt;link&gt;',
-                    ];
-                @endphp
+                <!-- Options -->
+                <div class="w-full md:w-1/2 space-y-3">
+                    @php
+                        $options = [
+                            'A' => $quiz->option_a,
+                            'B' => $quiz->option_b,
+                            'C' => $quiz->option_c,
+                            'D' => $quiz->option_d,
+                        ];
+                    @endphp
 
-                @foreach($options as $key => $text)
-                <button 
-                    wire:click="submitAnswer('{{ $key }}')"
-                    class="w-full text-left p-4 rounded-xl border flex items-center gap-4 transition-all duration-300 spring-bounce overflow-hidden relative
-                    @if($selectedAnswer === $key)
-                        @if($isCorrect)
+                    @foreach($options as $key => $text)
+                    <button 
+                        wire:click="selectAnswer({{ $quiz->id }}, '{{ $key }}')"
+                        class="w-full text-left p-4 rounded-xl border flex items-center gap-4 transition-all duration-300 spring-bounce overflow-hidden relative
+                        @if(isset($userAnswers[$quiz->id]) && $userAnswers[$quiz->id] === $key)
                             border-[#CCFF00] bg-[#CCFF00]/10 shadow-[0_0_20px_rgba(204,255,0,0.2)]
                         @else
-                            border-red-500 bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.2)]
+                            border-slate-700/50 bg-[#020617]/50 hover:border-[#00F0FF]/50 hover:bg-[#00F0FF]/5 hover:shadow-[0_0_15px_rgba(0,240,255,0.1)]
+                        @endif"
+                    >
+                        @if(isset($userAnswers[$quiz->id]) && $userAnswers[$quiz->id] === $key)
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#CCFF00] shadow-[0_0_10px_#CCFF00]"></div>
                         @endif
-                    @else
-                        border-slate-700/50 bg-[#020617]/50 hover:border-[#00F0FF]/50 hover:bg-[#00F0FF]/5 hover:shadow-[0_0_15px_rgba(0,240,255,0.1)]
-                    @endif"
-                >
-                    <!-- Active indicator bar -->
-                    @if($selectedAnswer === $key)
-                    <div class="absolute left-0 top-0 bottom-0 w-1 {{ $isCorrect ? 'bg-[#CCFF00] shadow-[0_0_10px_#CCFF00]' : 'bg-red-500 shadow-[0_0_10px_#ef4444]' }}"></div>
+
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono font-bold text-sm transition-colors
+                        @if(isset($userAnswers[$quiz->id]) && $userAnswers[$quiz->id] === $key)
+                            bg-[#CCFF00] text-black
+                        @else
+                            bg-[#1E293B] border border-slate-700 text-slate-400 group-hover:text-white
+                        @endif">
+                            {{ $key }}
+                        </div>
+                        <span class="text-white font-medium text-base md:text-lg">{{ $text }}</span>
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+            @endforeach
+
+            <!-- Pagination & Submit Controls -->
+            <div class="pt-6 mt-6 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-white/10">
+                <div class="text-sm text-slate-400 font-mono">
+                    Halaman {{ $currentPage }} dari {{ $this->totalPages }}
+                </div>
+                <div class="flex gap-2">
+                    @if($currentPage > 1)
+                    <button wire:click="prevPage" class="px-6 py-2 rounded-xl bg-[#1E293B] border border-white/10 text-white font-medium hover:bg-white/5 transition-colors text-sm flex items-center gap-2 spring-bounce">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Sebelumnya
+                    </button>
                     @endif
 
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono font-bold text-sm transition-colors
-                    @if($selectedAnswer === $key)
-                        {{ $isCorrect ? 'bg-[#CCFF00] text-black' : 'bg-red-500 text-white' }}
+                    @if($currentPage < $this->totalPages)
+                    <button wire:click="nextPage" class="px-6 py-2 rounded-xl bg-[#00F0FF] text-black font-bold hover:bg-[#5cffff] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all text-sm flex items-center gap-2 spring-bounce">
+                        Selanjutnya
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
                     @else
-                        bg-[#1E293B] border border-slate-700 text-slate-400 group-hover:text-white
-                    @endif">
-                        {{ $key }}
-                    </div>
-                    <span class="text-white font-medium text-lg">{!! $text !!}</span>
-                    
-                    @if($selectedAnswer === $key)
-                        <div class="ml-auto">
-                            @if($isCorrect)
-                                <svg class="w-6 h-6 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            @else
-                                <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            @endif
-                        </div>
+                    <button wire:click="submitQuiz" class="px-6 py-2 rounded-xl bg-[#CCFF00] text-black font-bold hover:bg-[#d4ff33] hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-all text-sm flex items-center gap-2 spring-bounce">
+                        Selesai & Lihat Skor
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </button>
                     @endif
-                </button>
-                @endforeach
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Score Modal -->
+    @if($showScoreModal)
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-[#020617]/80 backdrop-blur-sm"></div>
+        <div class="relative bg-[#1E293B] border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform transition-all scale-100 opacity-100">
+            <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 {{ $finalScore >= 70 ? 'bg-[#CCFF00]/20 text-[#CCFF00] shadow-[0_0_30px_rgba(204,255,0,0.3)]' : 'bg-red-500/20 text-red-400 shadow-[0_0_30px_rgba(239,68,68,0.3)]' }}">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    @if($finalScore >= 70)
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    @else
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    @endif
+                </svg>
+            </div>
+            
+            <h2 class="text-3xl font-bold text-white mb-2">Evaluasi Selesai!</h2>
+            <p class="text-slate-400 mb-6 font-mono text-sm">Skor Anda telah disimpan di sistem SIKA.</p>
+            
+            <div class="text-7xl font-extrabold tracking-tighter mb-8 {{ $finalScore >= 70 ? 'text-[#CCFF00] drop-shadow-[0_0_15px_rgba(204,255,0,0.5)]' : 'text-red-400 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]' }}">
+                {{ $finalScore }}
+            </div>
+
+            <a href="{{ route('dashboard') }}" class="block w-full py-3 rounded-xl bg-white text-black font-bold hover:bg-slate-200 transition-colors spring-bounce">
+                Kembali ke Dashboard
+            </a>
+        </div>
+    </div>
+    @endif
 </div>
