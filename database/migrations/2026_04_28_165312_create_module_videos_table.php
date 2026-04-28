@@ -6,21 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('modules', function (Blueprint $table) {
+        Schema::create('module_videos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('module_id')->constrained('modules')->onDelete('cascade');
             $table->string('title');
-            $table->string('subtitle')->nullable();
+            $table->string('youtube_id');
             $table->integer('order')->default(0);
-            $table->text('description')->nullable();
-            $table->longText('content')->nullable();
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('modules');
+        Schema::dropIfExists('module_videos');
     }
 };

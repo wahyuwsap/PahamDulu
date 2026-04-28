@@ -11,13 +11,19 @@ class Module extends Model
 
     protected $fillable = [
         'title',
+        'subtitle',
         'description',
-        'video_url',
         'content',
+        'order',
     ];
 
     public function quizzes()
     {
         return $this->hasMany(Quiz::class);
+    }
+
+    public function videos()
+    {
+        return $this->hasMany(ModuleVideo::class)->orderBy('order');
     }
 }
