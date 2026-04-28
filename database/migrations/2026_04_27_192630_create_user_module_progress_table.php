@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('user_module_progress', function (Blueprint $table) {
@@ -16,7 +15,7 @@ return new class extends Migration
             $table->boolean('is_completed')->default(false);
             $table->integer('score')->default(0);
             $table->timestamps();
-            
+
             $table->unique(['user_id', 'module_id']);
         });
     }

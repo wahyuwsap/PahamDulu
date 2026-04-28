@@ -16,6 +16,7 @@ class UserModuleProgress extends Model
         'module_id',
         'is_unlocked',
         'is_completed',
+        'score',
     ];
 
     public function user()

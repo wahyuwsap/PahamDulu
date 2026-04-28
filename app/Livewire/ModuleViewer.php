@@ -16,8 +16,8 @@ class ModuleViewer extends Component
     public $activeModule;
     public $modules;
     public $activeVideo;
-
-    public $isQuizUnlocked = false;
+    
+    public $watchedVideos = [];
     
     // Quiz state
     public $userAnswers = [];
@@ -27,6 +27,7 @@ class ModuleViewer extends Component
     // Score state
     public $showScoreModal = false;
     public $finalScore = 0;
+    public $wrongQuestions = [];
 
     public function mount($id)
     {
@@ -74,12 +75,20 @@ class ModuleViewer extends Component
     public function changeVideo($videoId)
     {
         $this->activeVideo = ModuleVideo::findOrFail($videoId);
-        $this->isQuizUnlocked = false;
+    }
+
+    #[Computed]
+    public function isQuizUnlocked()
+    {
+        if (!$this->activeModule) return false;
+        return count(array_unique($this->watchedVideos)) >= $this->activeModule->videos->count();
     }
 
     public function unlockQuiz()
     {
-        $this->isQuizUnlocked = true;
+        if (!in_array($this->activeVideo->id, $this->watchedVideos)) {
+            $this->watchedVideos[] = $this->activeVideo->id;
+        }
     }
 
     public function selectAnswer($quizId, $answer)
@@ -90,23 +99,31 @@ class ModuleViewer extends Component
     public function submitQuiz()
     {
         $correctAnswers = 0;
-        $totalQuizzes = $this->activeModule->quizzes->count();
+        $activeModule = Module::with('quizzes')->findOrFail($this->activeModule->id);
+        $totalQuizzes = $activeModule->quizzes->count();
+        $this->wrongQuestions = [];
 
         if ($totalQuizzes === 0) return;
 
-        foreach ($this->activeModule->quizzes as $quiz) {
+        $iteration = 1;
+        foreach ($activeModule->quizzes as $quiz) {
             if (isset($this->userAnswers[$quiz->id]) && strtolower($this->userAnswers[$quiz->id]) === strtolower($quiz->correct_answer)) {
                 $correctAnswers++;
+            } else {
+                $this->wrongQuestions[] = $iteration;
             }
+            $iteration++;
         }
 
         $this->finalScore = (int) round(($correctAnswers / $totalQuizzes) * 100);
 
         // Save to database
-        UserModuleProgress::updateOrCreate(
-            ['user_id' => auth()->id(), 'module_id' => $this->activeModule->id],
-            ['is_unlocked' => true, 'is_completed' => true, 'score' => $this->finalScore]
-        );
+        if (auth()->check()) {
+            UserModuleProgress::updateOrCreate(
+                ['user_id' => auth()->id(), 'module_id' => $activeModule->id],
+                ['is_unlocked' => true, 'is_completed' => true, 'score' => $this->finalScore]
+            );
+        }
 
         $this->showScoreModal = true;
     }
