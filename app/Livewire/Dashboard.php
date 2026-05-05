@@ -49,12 +49,31 @@ class Dashboard extends Component
             $fastestTime = $userProgress->whereNotNull('time_taken')->where('time_taken', '>', 0)->min('time_taken');
         }
 
+        // Chart data: scores over the last 14 days
+        $chartLabels = [];
+        $chartData = [];
+        $startDate = now()->subDays(13)->startOfDay();
+
+        for ($i = 0; $i < 14; $i++) {
+            $date = $startDate->copy()->addDays($i);
+            $chartLabels[] = $date->format('d M');
+
+            $dayScore = UserModuleProgress::where('user_id', $userId)
+                ->where('is_completed', true)
+                ->whereDate('updated_at', $date->toDateString())
+                ->avg('score');
+
+            $chartData[] = $dayScore !== null ? round($dayScore) : null;
+        }
+
         return view('livewire.dashboard', [
             'totalScore' => $totalScore,
             'completedCount' => $completedCount,
             'totalModules' => $totalModules,
             'ranking' => $ranking,
             'fastestTime' => $fastestTime,
+            'chartLabels' => $chartLabels,
+            'chartData' => $chartData,
         ]);
     }
 }

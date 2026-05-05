@@ -107,41 +107,42 @@
             </div>
         </div>
 
-        <!-- Card 3: Daily Progress (Lebar) -->
+        <!-- Card 4: Score Chart (Full Width) -->
         <div
-            class="md:col-span-3 bg-[#1E293B]/80 backdrop-blur-xl border border-white/5 rounded-[24px] p-8 shadow-xl relative overflow-hidden group spring-bounce cursor-default hover:border-white/10 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            class="md:col-span-3 bg-[#1E293B]/80 backdrop-blur-xl border border-white/5 rounded-[24px] p-8 shadow-xl relative overflow-hidden group cursor-default hover:border-white/10 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <div
                 class="absolute -bottom-24 left-1/4 w-64 h-64 bg-[#CCFF00] rounded-full mix-blend-multiply filter blur-[80px] opacity-10 group-hover:opacity-20 transition-opacity">
             </div>
 
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 relative z-10 gap-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-10 gap-4">
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Daily Progress Streak</h3>
-                    <p class="text-xs text-slate-400 mt-1 font-mono">Konsistensi belajar harianmu</p>
+                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Grafik Nilai Kuis</h3>
+                    <p class="text-xs text-slate-400 mt-1 font-mono">Perkembangan skor 14 hari terakhir</p>
                 </div>
                 <div
-                    class="bg-[#020617]/50 border border-white/10 rounded-xl px-4 py-2 inline-flex items-center gap-3 w-max shadow-inner opacity-50">
-                    <svg class="w-5 h-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
-                            clip-rule="evenodd"></path>
+                    class="bg-[#020617]/50 border border-white/10 rounded-xl px-4 py-2 inline-flex items-center gap-3 w-max shadow-inner">
+                    <svg class="w-5 h-5 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                     </svg>
-                    <span class="text-lg font-bold text-slate-400 font-mono tracking-widest">0 HARI</span>
-                    <span class="text-slate-600 font-mono">|</span>
-                    <span class="text-lg font-bold text-slate-400 font-mono tracking-widest">+0 SCORE</span>
+                    <span class="text-sm font-bold text-slate-300 font-mono">{{ $completedCount }} Kuis Selesai</span>
                 </div>
             </div>
 
-            <!-- Modern Progress Bar with Neon Tip -->
+            <!-- Chart Canvas -->
+            <div class="relative z-10" style="height: 280px;">
+                <canvas id="scoreChart"></canvas>
+            </div>
+
+            <!-- Progress Bar Section -->
             @php $progressPercent = $totalModules > 0 ? round(($completedCount / $totalModules) * 100) : 0; @endphp
-            <div class="relative z-10">
+            <div class="relative z-10 mt-8 pt-6" style="border-top: 1px solid rgba(51,65,85,0.4);">
                 <div class="flex justify-between text-xs font-mono text-slate-500 mb-2">
                     <span>Progres Modul: {{ $completedCount }}/{{ $totalModules }}</span>
                     <span class="{{ $progressPercent > 0 ? 'text-[#CCFF00]' : 'text-slate-500' }}">{{ $progressPercent }}% Selesai</span>
                 </div>
                 <div
                     class="w-full h-4 bg-[#020617] rounded-full overflow-hidden border border-slate-700/50 shadow-inner relative">
-                    <!-- The Bar -->
                     <div class="h-full {{ $progressPercent > 0 ? 'bg-gradient-to-r from-[#CCFF00] to-[#00F0FF]' : 'bg-slate-800' }} rounded-full relative transition-all duration-1000 ease-out" style="width: {{ $progressPercent }}%">
                     </div>
                 </div>
@@ -149,4 +150,106 @@
         </div>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('scoreChart');
+            if (!ctx) return;
+
+            const labels = @json($chartLabels);
+            const data = @json($chartData);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Skor Kuis',
+                        data: data,
+                        borderColor: '#CCFF00',
+                        backgroundColor: function(context) {
+                            const chart = context.chart;
+                            const {ctx: c, chartArea} = chart;
+                            if (!chartArea) return 'rgba(204,255,0,0.1)';
+                            const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                            gradient.addColorStop(0, 'rgba(204,255,0,0.3)');
+                            gradient.addColorStop(1, 'rgba(204,255,0,0.0)');
+                            return gradient;
+                        },
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#CCFF00',
+                        pointBorderColor: '#1E293B',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointHoverBackgroundColor: '#CCFF00',
+                        pointHoverBorderColor: '#fff',
+                        spanGaps: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#020617',
+                            titleColor: '#94a3b8',
+                            titleFont: { family: 'monospace', size: 11 },
+                            bodyColor: '#CCFF00',
+                            bodyFont: { family: 'monospace', size: 14, weight: 'bold' },
+                            borderColor: 'rgba(51,65,85,0.5)',
+                            borderWidth: 1,
+                            cornerRadius: 12,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.parsed.y === null) return 'Tidak ada kuis';
+                                    return 'Skor: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(51,65,85,0.3)',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: { family: 'monospace', size: 11 },
+                                maxRotation: 0,
+                            },
+                            border: { display: false }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(51,65,85,0.3)',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: { family: 'monospace', size: 11 },
+                                stepSize: 20,
+                                callback: function(value) { return value; }
+                            },
+                            border: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </div>
