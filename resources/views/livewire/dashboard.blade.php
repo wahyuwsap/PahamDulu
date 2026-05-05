@@ -95,10 +95,14 @@
 
             <div class="relative z-10">
                 <span class="text-4xl font-extrabold text-white font-mono tracking-tighter drop-shadow-md">
-                    00:00<span class="text-xl text-slate-500">s</span>
+                    @if($fastestTime)
+                        {{ sprintf('%02d:%02d', floor($fastestTime / 60), $fastestTime % 60) }}<span class="text-xl text-slate-500">s</span>
+                    @else
+                        00:00<span class="text-xl text-slate-500">s</span>
+                    @endif
                 </span>
                 <p class="text-xs text-slate-500 mt-2 font-mono">
-                    Belum ada rekor kuis
+                    {{ $fastestTime ? 'Waktu tercepat menyelesaikan kuis' : 'Belum ada rekor kuis' }}
                 </p>
             </div>
         </div>

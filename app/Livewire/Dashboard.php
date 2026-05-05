@@ -43,11 +43,18 @@ class Dashboard extends Component
             }
         }
 
+        // Get fastest quiz time
+        $fastestTime = null;
+        if ($completedCount > 0) {
+            $fastestTime = $userProgress->whereNotNull('time_taken')->where('time_taken', '>', 0)->min('time_taken');
+        }
+
         return view('livewire.dashboard', [
             'totalScore' => $totalScore,
             'completedCount' => $completedCount,
             'totalModules' => $totalModules,
             'ranking' => $ranking,
+            'fastestTime' => $fastestTime,
         ]);
     }
 }

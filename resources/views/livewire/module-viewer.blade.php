@@ -141,7 +141,7 @@
             </div>
         @else
             <!-- Unlocked State: Questions -->
-            <div class="relative z-10 space-y-10">
+            <div class="relative z-10 space-y-6">
 
                 {{-- Score Banner (above quiz questions when submitted) --}}
                 @if($quizSubmitted)
@@ -266,7 +266,7 @@
                     </div>
 
                     @if(!$loop->last)
-                        <hr class="border-t-2 border-slate-700/60 shadow-[0_1px_0_rgba(255,255,255,0.05)] my-8">
+                        <hr class="border-t-2 border-slate-700/60 shadow-[0_1px_0_rgba(255,255,255,0.05)] my-2">
                     @endif
                 @endforeach
 
