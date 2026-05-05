@@ -17,16 +17,16 @@ class ModuleViewer extends Component
     public $activeModule;
     public $modules;
     public $activeVideo;
-    
+
     public $watchedVideos = [];
-    
+
     // Quiz state
     public $userAnswers = [];
     public $currentPage = 1;
     public $perPage = 5;
-    
+
     // Score state
-    public $showScoreModal = false;
+    public $quizSubmitted = false;
     public $finalScore = 0;
     public $wrongQuestions = [];
 
@@ -34,7 +34,7 @@ class ModuleViewer extends Component
     {
         $this->modules = Module::orderBy('order')->get();
         $this->activeModule = Module::with(['videos', 'quizzes'])->findOrFail($id);
-        
+
         if ($this->activeModule->videos->isNotEmpty()) {
             $this->activeVideo = $this->activeModule->videos->first();
         }
@@ -52,6 +52,10 @@ class ModuleViewer extends Component
 
             if ($progress && $progress->is_completed) {
                 $this->finalScore = $progress->score;
+                $this->quizSubmitted = true;
+                if (!empty($progress->answers)) {
+                    $this->userAnswers = $progress->answers;
+                }
             }
         }
     }
@@ -59,7 +63,8 @@ class ModuleViewer extends Component
     #[Computed]
     public function paginatedQuizzes()
     {
-        if ($this->activeModule->quizzes->isEmpty()) return collect();
+        if ($this->activeModule->quizzes->isEmpty())
+            return collect();
         $chunks = $this->activeModule->quizzes->chunk($this->perPage);
         return $chunks->has($this->currentPage - 1) ? $chunks[$this->currentPage - 1] : collect();
     }
@@ -97,7 +102,8 @@ class ModuleViewer extends Component
     #[Computed]
     public function isQuizUnlocked()
     {
-        if (!$this->activeModule) return false;
+        if (!$this->activeModule)
+            return false;
         return count(array_unique($this->watchedVideos)) >= $this->activeModule->videos->count();
     }
 
@@ -117,17 +123,26 @@ class ModuleViewer extends Component
 
     public function selectAnswer($quizId, $answer)
     {
+        // Don't allow changing answers after quiz is submitted
+        if ($this->quizSubmitted)
+            return;
+
         $this->userAnswers[$quizId] = $answer;
     }
 
     public function submitQuiz()
     {
+        // Don't allow re-submitting
+        if ($this->quizSubmitted)
+            return;
+
         $correctAnswers = 0;
         $activeModule = Module::with('quizzes')->findOrFail($this->activeModule->id);
         $totalQuizzes = $activeModule->quizzes->count();
         $this->wrongQuestions = [];
 
-        if ($totalQuizzes === 0) return;
+        if ($totalQuizzes === 0)
+            return;
 
         $iteration = 1;
         foreach ($activeModule->quizzes as $quiz) {
@@ -140,16 +155,41 @@ class ModuleViewer extends Component
         }
 
         $this->finalScore = (int) round(($correctAnswers / $totalQuizzes) * 100);
+        $this->quizSubmitted = true;
 
         // Save to database
         if (auth()->check()) {
             UserModuleProgress::updateOrCreate(
                 ['user_id' => auth()->id(), 'module_id' => $activeModule->id],
-                ['is_unlocked' => true, 'is_completed' => true, 'score' => $this->finalScore]
+                [
+                    'is_unlocked' => true,
+                    'is_completed' => true,
+                    'score' => $this->finalScore,
+                    'answers' => $this->userAnswers
+                ]
             );
         }
 
-        $this->showScoreModal = true;
+        $this->dispatch('swal:score', score: $this->finalScore, wrongQuestions: $this->wrongQuestions);
+    }
+
+    public function resetQuiz()
+    {
+        $this->userAnswers = [];
+        $this->currentPage = 1;
+        $this->wrongQuestions = [];
+        $this->quizSubmitted = false;
+        $this->finalScore = 0;
+
+        // Reset progress in database but keep the record (score is preserved via history)
+        if (auth()->check()) {
+            UserModuleProgress::where('user_id', auth()->id())
+                ->where('module_id', $this->activeModule->id)
+                ->update([
+                    'is_completed' => false,
+                    'answers' => null,
+                ]);
+        }
     }
 
     public function render()

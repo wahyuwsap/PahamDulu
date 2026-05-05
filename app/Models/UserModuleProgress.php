@@ -17,6 +17,13 @@ class UserModuleProgress extends Model
         'is_unlocked',
         'is_completed',
         'score',
+        'answers',
+    ];
+
+    protected $casts = [
+        'answers' => 'array',
+        'is_unlocked' => 'boolean',
+        'is_completed' => 'boolean',
     ];
 
     public function user()

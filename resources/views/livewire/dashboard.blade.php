@@ -28,13 +28,20 @@
             <div class="relative z-10">
                 <span
                     class="text-5xl font-extrabold text-white font-mono tracking-tighter group-hover:text-[#CCFF00] transition-colors drop-shadow-md">
-                    0
+                    {{ $totalScore }}
                 </span>
                 <p class="text-xs text-slate-500 mt-2 font-mono flex items-center gap-1">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                    </svg>
-                    Belum ada progres
+                    @if($completedCount > 0)
+                        <svg class="w-3 h-3 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {{ $completedCount }}/{{ $totalModules }} modul selesai
+                    @else
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                        </svg>
+                        Belum ada progres
+                    @endif
                 </p>
             </div>
         </div>
@@ -60,10 +67,10 @@
 
             <div class="relative z-10">
                 <div class="flex items-baseline gap-2">
-                    <span class="text-5xl font-extrabold text-white font-mono tracking-tighter drop-shadow-md">-</span>
+                    <span class="text-5xl font-extrabold text-white font-mono tracking-tighter drop-shadow-md">{{ $ranking }}</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-2 font-mono">
-                    Mulai kuis untuk melihat peringkat
+                    {{ $ranking === '-' ? 'Mulai kuis untuk melihat peringkat' : 'Peringkat berdasarkan rata-rata skor' }}
                 </p>
             </div>
         </div>
@@ -122,15 +129,16 @@
             </div>
 
             <!-- Modern Progress Bar with Neon Tip -->
+            @php $progressPercent = $totalModules > 0 ? round(($completedCount / $totalModules) * 100) : 0; @endphp
             <div class="relative z-10">
                 <div class="flex justify-between text-xs font-mono text-slate-500 mb-2">
-                    <span>Target Mingguan: Belum diatur</span>
-                    <span class="text-slate-500">0% Selesai</span>
+                    <span>Progres Modul: {{ $completedCount }}/{{ $totalModules }}</span>
+                    <span class="{{ $progressPercent > 0 ? 'text-[#CCFF00]' : 'text-slate-500' }}">{{ $progressPercent }}% Selesai</span>
                 </div>
                 <div
                     class="w-full h-4 bg-[#020617] rounded-full overflow-hidden border border-slate-700/50 shadow-inner relative">
                     <!-- The Bar -->
-                    <div class="h-full bg-slate-800 rounded-full relative w-[0%] transition-all duration-1000 ease-out">
+                    <div class="h-full {{ $progressPercent > 0 ? 'bg-gradient-to-r from-[#CCFF00] to-[#00F0FF]' : 'bg-slate-800' }} rounded-full relative transition-all duration-1000 ease-out" style="width: {{ $progressPercent }}%">
                     </div>
                 </div>
             </div>

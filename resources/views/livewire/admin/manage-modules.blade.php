@@ -341,11 +341,14 @@
                     cancelButtonColor: '#94a3b8',
                     confirmButtonText: 'Yes, delete!',
                     cancelButtonText: 'Cancel',
-                    background: '#ffffff',
-                    color: '#334155',
+                    background: '#1E293B',
+                    color: '#ffffff',
+                    customClass: {
+                        popup: 'border border-slate-700 rounded-3xl shadow-2xl',
+                    },
                     backdrop: `
-                        rgba(0,0,0,0.4)
-                        backdrop-filter: blur(4px)
+                        rgba(0,0,0,0.6)
+                        backdrop-filter: blur(8px)
                     `
                 }).then((result) => {
                     if (result.isConfirmed) {

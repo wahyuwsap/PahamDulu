@@ -143,7 +143,7 @@
             <!-- Unlocked State: Questions -->
             <div class="relative z-10 space-y-10">
                 @foreach($this->paginatedQuizzes as $index => $quiz)
-                    <div class="flex flex-col md:flex-row justify-between gap-8 pb-4 relative">
+                    <div wire:key="quiz-{{ $quiz->id }}" class="flex flex-col md:flex-row justify-between gap-8 pb-4 relative">
                         <!-- Question -->
                         <div class="w-full md:w-1/2">
                             <div
@@ -172,11 +172,12 @@
                             @endphp
 
                             @foreach($options as $key => $text)
-                                <button wire:click="selectAnswer({{ $quiz->id }}, '{{ $key }}')" class="w-full text-left p-4 rounded-xl border flex items-center gap-4 transition-all duration-300 spring-bounce overflow-hidden relative
+                                <button wire:click="selectAnswer({{ $quiz->id }}, '{{ $key }}')" {{ $quizSubmitted ? 'disabled' : '' }} class="w-full text-left p-4 rounded-xl border flex items-center gap-4 transition-all duration-300 overflow-hidden relative
+                                                                                                                        {{ $quizSubmitted ? 'opacity-60 cursor-not-allowed' : 'spring-bounce' }}
                                                                                                                         @if(isset($userAnswers[$quiz->id]) && $userAnswers[$quiz->id] === $key)
                                                                                                                             border-[#CCFF00] bg-[#CCFF00]/10 shadow-[0_0_20px_rgba(204,255,0,0.2)]
                                                                                                                         @else
-                                                                                                                            border-slate-700/50 bg-[#020617]/50 hover:border-[#00F0FF]/50 hover:bg-[#00F0FF]/5 hover:shadow-[0_0_15px_rgba(0,240,255,0.1)]
+                                                                                                                            border-slate-700/50 bg-[#020617]/50 {{ !$quizSubmitted ? 'hover:border-[#00F0FF]/50 hover:bg-[#00F0FF]/5 hover:shadow-[0_0_15px_rgba(0,240,255,0.1)]' : '' }}
                                                                                                                         @endif">
                                     @if(isset($userAnswers[$quiz->id]) && $userAnswers[$quiz->id] === $key)
                                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#CCFF00] shadow-[0_0_10px_#CCFF00]"></div>
@@ -229,14 +230,29 @@
                                 </svg>
                             </button>
                         @else
-                            <button wire:click="submitQuiz"
-                                class="px-6 py-2 rounded-xl bg-[#CCFF00] text-black font-bold hover:bg-[#d4ff33] hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-all text-sm flex items-center gap-2 spring-bounce">
-                                Selesai & Lihat Skor
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
-                                    </path>
-                                </svg>
-                            </button>
+                            @if($quizSubmitted)
+                                <div class="px-6 py-2 rounded-xl bg-[#00F0FF]/20 text-[#00F0FF] font-bold text-sm flex items-center gap-2 border border-[#00F0FF]/30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Selesai — Skor: {{ $finalScore }}
+                                </div>
+                                <button wire:click="resetQuiz"
+                                    class="px-6 py-2 rounded-xl bg-[#1E293B] border border-white/10 text-white font-medium hover:bg-white/5 transition-colors text-sm flex items-center gap-2 spring-bounce">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    Ulangi Kuis
+                                </button>
+                            @else
+                                <button wire:click="submitQuiz"
+                                    class="px-6 py-2 rounded-xl bg-[#CCFF00] text-black font-bold hover:bg-[#d4ff33] hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-all text-sm flex items-center gap-2 spring-bounce">
+                                    Selesai & Lihat Skor
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -244,57 +260,53 @@
         @endif
     </div>
 
-    <!-- Score Modal -->
-    @if($showScoreModal)
-        <div
-            style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-            <div style="position: absolute; inset: 0; background-color: rgba(2, 6, 23, 0.8); backdrop-filter: blur(4px);">
-            </div>
-            <div
-                class="relative bg-[#1E293B] border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center">
-                <div
-                    class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 {{ $finalScore >= 70 ? 'bg-[#CCFF00]/20 text-[#CCFF00] shadow-[0_0_30px_rgba(204,255,0,0.3)]' : 'bg-red-500/20 text-red-400 shadow-[0_0_30px_rgba(239,68,68,0.3)]' }}">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        @if($finalScore >= 70)
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        @else
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        @endif
-                    </svg>
-                </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('swal:score', (data) => {
+                const score = data[0].score;
+                const wrong = data[0].wrongQuestions;
 
-                <h2 class="text-3xl font-bold text-white mb-2">Evaluasi Selesai!</h2>
-                <p class="text-slate-400 mb-6 font-mono text-sm">Skor Anda telah disimpan di sistem SIKA.</p>
+                let iconHtml = score >= 70
+                    ? '<div style="margin:0 auto;width:80px;height:80px;border-radius:50%;background:rgba(204,255,0,0.2);color:#CCFF00;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(204,255,0,0.3)"><svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>'
+                    : '<div style="margin:0 auto;width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,0.2);color:#ef4444;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(239,68,68,0.3)"><svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>';
 
-                <div
-                    class="text-7xl font-extrabold tracking-tighter mb-8 {{ $finalScore >= 70 ? 'text-[#CCFF00] drop-shadow-[0_0_15px_rgba(204,255,0,0.5)]' : 'text-red-400 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]' }}">
-                    {{ $finalScore }}
-                </div>
+                let scoreColor = score >= 70
+                    ? 'color:#CCFF00;text-shadow:0 0 15px rgba(204,255,0,0.5)'
+                    : 'color:#ef4444;text-shadow:0 0 15px rgba(239,68,68,0.5)';
 
-                @if(count($wrongQuestions) > 0)
-                    <div
-                        class="bg-[#020617]/50 rounded-xl p-4 mb-8 border border-slate-700/50 text-left max-h-40 overflow-y-auto">
-                        <p class="text-sm font-bold text-white mb-2">Soal yang perlu diperbaiki:</p>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($wrongQuestions as $wq)
-                                <span
-                                    class="inline-flex items-center justify-center w-8 h-8 rounded bg-red-500/20 text-red-400 font-mono text-sm border border-red-500/30 font-bold">{{ $wq }}</span>
-                            @endforeach
-                        </div>
-                    </div>
-                @else
-                    <div class="bg-[#CCFF00]/10 rounded-xl p-4 mb-8 border border-[#CCFF00]/30 text-center">
-                        <p class="text-sm font-bold text-[#CCFF00]">Luar Biasa! Anda menjawab seluruh soal dengan sempurna.</p>
-                    </div>
-                @endif
+                let wrongHtml = wrong.length > 0
+                    ? '<div style="background:rgba(2,6,23,0.5);border-radius:12px;padding:16px;margin-bottom:24px;border:1px solid rgba(51,65,85,0.5);text-align:left"><p style="font-size:14px;font-weight:bold;color:white;margin-bottom:8px">Soal yang perlu diperbaiki:</p><div style="display:flex;flex-wrap:wrap;gap:8px">' + wrong.map(w => '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:4px;background:rgba(239,68,68,0.2);color:#ef4444;font-family:monospace;font-size:14px;border:1px solid rgba(239,68,68,0.3);font-weight:bold">' + w + '</span>').join('') + '</div></div>'
+                    : '<div style="background:rgba(204,255,0,0.1);border-radius:12px;padding:16px;margin-bottom:24px;border:1px solid rgba(204,255,0,0.3);text-align:center"><p style="font-size:14px;font-weight:bold;color:#CCFF00">Luar Biasa! Anda menjawab seluruh soal dengan sempurna.</p></div>';
 
-                <a href="{{ route('dashboard') }}"
-                    class="block w-full py-3 rounded-xl bg-white text-black font-bold hover:bg-slate-200 transition-colors spring-bounce">
-                    Kembali ke Dashboard
-                </a>
-            </div>
-        </div>
-    @endif
+                Swal.fire({
+                    html: iconHtml +
+                        '<h2 style="font-size:1.875rem;font-weight:bold;color:white;margin-top:20px;margin-bottom:8px">Evaluasi Selesai!</h2>' +
+                        '<p style="color:#94a3b8;margin-bottom:24px;font-family:monospace;font-size:14px">Skor Anda telah disimpan di sistem SIKA.</p>' +
+                        '<div style="font-size:4.5rem;font-weight:800;letter-spacing:-0.05em;margin-bottom:32px;' + scoreColor + '">' + score + '</div>' +
+                        wrongHtml,
+                    background: '#1E293B',
+                    customClass: {
+                        popup: 'border border-slate-700 rounded-3xl shadow-2xl',
+                        actions: 'flex flex-col gap-3 w-full px-4',
+                        confirmButton: 'w-full py-3 rounded-xl bg-white text-black font-bold hover:bg-slate-200 transition-colors m-0',
+                        denyButton: 'w-full py-3 rounded-xl bg-[#020617] text-slate-300 font-bold hover:bg-slate-800 border border-slate-700 transition-colors m-0'
+                    },
+                    buttonsStyling: false,
+                    showCancelButton: false,
+                    showDenyButton: true,
+                    confirmButtonText: 'Kembali ke Dashboard',
+                    denyButtonText: 'Ulangi Kuis (Reset Jawaban)',
+                    allowOutsideClick: false,
+                    backdrop: 'rgba(0,0,0,0.6)'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/dashboard';
+                    } else if (result.isDenied) {
+                        Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id')).call('resetQuiz');
+                    }
+                });
+            });
+        });
+    </script>
 </div>
