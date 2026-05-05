@@ -6,7 +6,7 @@
         </div>
         <div class="w-full md:w-1/3 flex gap-2">
             <div class="relative flex-grow">
-                <input wire:model.live="search" type="text"
+                <input wire:model.live.debounce.300ms="search" type="text"
                     class="w-full bg-[#1E293B]/60 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors"
                     placeholder="Cari modul...">
                 <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">

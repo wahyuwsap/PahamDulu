@@ -14,8 +14,11 @@ use Livewire\Attributes\Computed;
 #[Layout('components.layouts.dashboard')]
 class ModuleViewer extends Component
 {
+    /** @var \App\Models\Module|null */
     public $activeModule;
+    /** @var \Illuminate\Database\Eloquent\Collection<\App\Models\Module> */
     public $modules;
+    /** @var \App\Models\ModuleVideo|null */
     public $activeVideo;
 
     public $watchedVideos = [];

@@ -19,7 +19,7 @@ class ManageModules extends Component
     public $moduleToDelete = null;
     public $moduleId;
     public $title, $subtitle, $order, $description, $content;
-    
+
     public $videos = [];
     public $quizzes = [];
 
@@ -31,11 +31,11 @@ class ManageModules extends Component
             'order' => 'required|integer',
             'description' => 'nullable|string',
             'content' => 'nullable|string',
-            
+
             'videos.*.title' => 'required|string|max:255',
             'videos.*.youtube_id' => 'required|string|max:255',
             'videos.*.order' => 'required|integer',
-            
+
             'quizzes.*.question' => 'required|string',
             'quizzes.*.option_a' => 'required|string',
             'quizzes.*.option_b' => 'required|string',
@@ -90,7 +90,7 @@ class ManageModules extends Component
         $this->reset(['title', 'subtitle', 'order', 'description', 'content', 'moduleId']);
         $this->videos = [];
         $this->quizzes = [];
-        
+
         // Add 1 default empty video and quiz to guide user
         $this->addVideo();
         $this->addQuiz();
@@ -114,19 +114,19 @@ class ManageModules extends Component
         $this->order = $module->order;
         $this->description = $module->description;
         $this->content = $module->content;
-        
+
         $this->videos = $module->videos->map(function ($v) {
             $arr = $v->toArray();
             $arr['_key'] = 'vid_' . $v->id;
             return $arr;
         })->toArray();
-        
+
         $this->quizzes = $module->quizzes->map(function ($q) {
             $arr = $q->toArray();
             $arr['_key'] = 'quiz_' . $q->id;
             return $arr;
         })->toArray();
-        
+
         $this->isEditMode = true;
         $this->isModalOpen = true;
     }
@@ -147,8 +147,12 @@ class ManageModules extends Component
                 ]);
 
                 // Strip _key before saving
-                $videosData = collect($this->videos)->map(function ($v) { unset($v['_key']); return $v; })->toArray();
-                $quizzesData = collect($this->quizzes)->map(function ($q) { unset($q['_key']); return $q; })->toArray();
+                $videosData = collect($this->videos)->map(function ($v) {
+                    unset($v['_key']);
+                    return $v; })->toArray();
+                $quizzesData = collect($this->quizzes)->map(function ($q) {
+                    unset($q['_key']);
+                    return $q; })->toArray();
 
                 // Sync videos
                 $module->videos()->delete();
@@ -168,8 +172,12 @@ class ManageModules extends Component
                     'content' => $this->content,
                 ]);
 
-                $videosData = collect($this->videos)->map(function ($v) { unset($v['_key']); return $v; })->toArray();
-                $quizzesData = collect($this->quizzes)->map(function ($q) { unset($q['_key']); return $q; })->toArray();
+                $videosData = collect($this->videos)->map(function ($v) {
+                    unset($v['_key']);
+                    return $v; })->toArray();
+                $quizzesData = collect($this->quizzes)->map(function ($q) {
+                    unset($q['_key']);
+                    return $q; })->toArray();
 
                 $module->videos()->createMany($videosData);
                 $module->quizzes()->createMany($quizzesData);
@@ -199,7 +207,7 @@ class ManageModules extends Component
             $module = Module::findOrFail($this->moduleToDelete);
             $module->delete(); // Cascades on DB level for relations
             session()->flash('message', 'Modul beserta video dan kuisnya berhasil dihapus.');
-            
+
             $this->isDeleteModalOpen = false;
             $this->moduleToDelete = null;
         }
@@ -207,8 +215,16 @@ class ManageModules extends Component
 
     public function render()
     {
+        $searchTerm = trim($this->search);
+        
         $modules = Module::with(['videos', 'quizzes'])
-            ->where('title', 'like', '%' . $this->search . '%')
+            ->when($searchTerm, function ($query) use ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('title', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('subtitle', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('description', 'like', '%' . $searchTerm . '%');
+                });
+            })
             ->orderBy('order', 'asc')
             ->paginate(10);
 
