@@ -16,9 +16,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', \App\Livewire\Profile\EditProfile::class)->name('profile.edit');
     Route::get('/profile/password', \App\Livewire\Profile\ChangePassword::class)->name('profile.password');
 
-    Route::get('/admin/dashboard', function () {
-        return 'Admin Dashboard Kosong';
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin.dashboard');
+    Route::get('/admin/users', \App\Livewire\Admin\ManageUsers::class)->name('admin.users');
+    Route::get('/admin/modules', \App\Livewire\Admin\ManageModules::class)->name('admin.modules');
 
     Route::post('/logout', function () {
         Illuminate\Support\Facades\Auth::logout();

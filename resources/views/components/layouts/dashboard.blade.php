@@ -103,14 +103,29 @@
 
             <!-- Navbar Tabs -->
             <nav class="flex space-x-8 mt-2 overflow-x-auto no-scrollbar">
-                <a href="{{ route('dashboard') }}"
-                    class="py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap {{ request()->routeIs('dashboard') ? 'border-[#CCFF00] text-[#CCFF00] shadow-[0_4px_15px_-3px_rgba(204,255,0,0.4)]' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600' }}">
-                    Dashboard
-                </a>
-                <a href="/modul/1"
-                    class="py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap {{ request()->is('modul*') ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_15px_-3px_rgba(0,240,255,0.4)]' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600' }}">
-                    Modul Belajar
-                </a>
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap {{ request()->routeIs('admin.dashboard') ? 'border-[#CCFF00] text-[#CCFF00] shadow-[0_4px_15px_-3px_rgba(204,255,0,0.4)]' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600' }}">
+                        Dashboard Admin
+                    </a>
+                    <a href="{{ route('admin.users') }}"
+                        class="py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap {{ request()->routeIs('admin.users') ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_15px_-3px_rgba(0,240,255,0.4)]' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600' }}">
+                        Kelola Pengguna
+                    </a>
+                    <a href="{{ route('admin.modules') }}"
+                        class="py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap {{ request()->routeIs('admin.modules') ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_15px_-3px_rgba(0,240,255,0.4)]' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600' }}">
+                        Kelola Modul
+                    </a>
+                @else
+                    <a href="{{ route('dashboard') }}"
+                        class="py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap {{ request()->routeIs('dashboard') ? 'border-[#CCFF00] text-[#CCFF00] shadow-[0_4px_15px_-3px_rgba(204,255,0,0.4)]' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600' }}">
+                        Dashboard
+                    </a>
+                    <a href="/modul/1"
+                        class="py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap {{ request()->is('modul*') ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_15px_-3px_rgba(0,240,255,0.4)]' : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600' }}">
+                        Modul Belajar
+                    </a>
+                @endif
             </nav>
         </div>
     </header>
