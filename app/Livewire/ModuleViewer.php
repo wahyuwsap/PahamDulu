@@ -59,6 +59,16 @@ class ModuleViewer extends Component
                 if (!empty($progress->answers)) {
                     $this->userAnswers = $progress->answers;
                 }
+
+                // Recalculate wrongQuestions from stored answers
+                $this->wrongQuestions = [];
+                $iteration = 1;
+                foreach ($this->activeModule->quizzes as $quiz) {
+                    if (!isset($this->userAnswers[$quiz->id]) || strtolower($this->userAnswers[$quiz->id]) !== strtolower($quiz->correct_answer)) {
+                        $this->wrongQuestions[] = $iteration;
+                    }
+                    $iteration++;
+                }
             }
         }
     }

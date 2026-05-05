@@ -141,11 +141,11 @@
             </div>
         @else
             <!-- Unlocked State: Questions -->
-            <div class="relative z-10 space-y-6">
+            <div class="relative z-10 space-y-8">
 
                 {{-- Score Banner (above quiz questions when submitted) --}}
                 @if($quizSubmitted)
-                    <div class="rounded-2xl border border-[#CCFF00]/30 bg-gradient-to-r from-[#CCFF00]/5 to-[#00F0FF]/5 p-6 relative overflow-hidden">
+                    <div style="margin-bottom: 40px;" class="rounded-2xl border border-[#CCFF00]/30 bg-gradient-to-r from-[#CCFF00]/5 to-[#00F0FF]/5 p-6 relative overflow-hidden">
                         <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#CCFF00] rounded-full mix-blend-multiply filter blur-[50px] opacity-20 pointer-events-none"></div>
                         <div class="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
                             <div class="flex items-center gap-6">
@@ -211,7 +211,7 @@
                 @endif
 
                 @foreach($this->paginatedQuizzes as $index => $quiz)
-                    <div wire:key="quiz-{{ $quiz->id }}" class="flex flex-col md:flex-row justify-between gap-8 pb-4 relative">
+                    <div wire:key="quiz-{{ $quiz->id }}" style="padding-top: 16px; padding-bottom: 16px;" class="flex flex-col md:flex-row justify-between gap-8 relative">
                         <!-- Question -->
                         <div class="w-full md:w-1/2">
                             <div
@@ -266,7 +266,7 @@
                     </div>
 
                     @if(!$loop->last)
-                        <hr class="border-t-2 border-slate-700/60 shadow-[0_1px_0_rgba(255,255,255,0.05)] my-2">
+                        <hr style="margin-top: 24px; margin-bottom: 24px;" class="border-t-2 border-slate-700/60">
                     @endif
                 @endforeach
 
@@ -321,64 +321,71 @@
         @endif
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @script
     <script>
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('swal:score', (data) => {
-                const score = data[0].score;
-                const wrong = data[0].wrongQuestions;
-                const timeTaken = data[0].timeTaken || 0;
-                const mins = Math.floor(timeTaken / 60);
-                const secs = timeTaken % 60;
-                const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        $wire.on('swal:score', (params) => {
+            console.log('swal:score event received!', params);
 
-                let iconHtml = score >= 70
-                    ? '<div style="margin:0 auto;width:80px;height:80px;border-radius:50%;background:rgba(204,255,0,0.2);color:#CCFF00;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(204,255,0,0.3)"><svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>'
-                    : '<div style="margin:0 auto;width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,0.2);color:#ef4444;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(239,68,68,0.3)"><svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>';
+            // Livewire 3 dispatch passes named params - access them correctly
+            let score, wrong, timeTaken;
 
-                let scoreColor = score >= 70
-                    ? 'color:#CCFF00;text-shadow:0 0 15px rgba(204,255,0,0.5)'
-                    : 'color:#ef4444;text-shadow:0 0 15px rgba(239,68,68,0.5)';
+            if (Array.isArray(params)) {
+                // params might be [{score, wrongQuestions, timeTaken}]
+                const data = params[0] || params;
+                score = data.score ?? 0;
+                wrong = data.wrongQuestions ?? [];
+                timeTaken = data.timeTaken ?? 0;
+            } else {
+                score = params.score ?? 0;
+                wrong = params.wrongQuestions ?? [];
+                timeTaken = params.timeTaken ?? 0;
+            }
 
-                let timeHtml = '<div style="display:flex;justify-content:center;gap:24px;margin-bottom:24px">' +
-                    '<div style="text-align:center"><p style="font-size:12px;color:#94a3b8;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Waktu</p><p style="font-size:1.5rem;font-weight:800;color:#00F0FF;font-family:monospace">' + timeStr + '</p></div>' +
-                    '<div style="width:1px;background:rgba(51,65,85,0.5)"></div>' +
-                    '<div style="text-align:center"><p style="font-size:12px;color:#94a3b8;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Salah</p><p style="font-size:1.5rem;font-weight:800;color:#ef4444;font-family:monospace">' + wrong.length + ' soal</p></div>' +
-                    '</div>';
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
 
-                let wrongHtml = wrong.length > 0
-                    ? '<div style="background:rgba(2,6,23,0.5);border-radius:12px;padding:16px;margin-bottom:24px;border:1px solid rgba(51,65,85,0.5);text-align:left"><p style="font-size:14px;font-weight:bold;color:white;margin-bottom:8px">Soal yang perlu diperbaiki:</p><div style="display:flex;flex-wrap:wrap;gap:8px">' + wrong.map(w => '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:4px;background:rgba(239,68,68,0.2);color:#ef4444;font-family:monospace;font-size:14px;border:1px solid rgba(239,68,68,0.3);font-weight:bold">' + w + '</span>').join('') + '</div></div>'
-                    : '<div style="background:rgba(204,255,0,0.1);border-radius:12px;padding:16px;margin-bottom:24px;border:1px solid rgba(204,255,0,0.3);text-align:center"><p style="font-size:14px;font-weight:bold;color:#CCFF00">Luar Biasa! Anda menjawab seluruh soal dengan sempurna.</p></div>';
+            const totalQuestions = {{ $activeModule->quizzes->count() }};
+            const correctCount = totalQuestions - wrong.length;
 
-                Swal.fire({
-                    html: iconHtml +
-                        '<h2 style="font-size:1.875rem;font-weight:bold;color:white;margin-top:20px;margin-bottom:8px">Evaluasi Selesai!</h2>' +
-                        '<p style="color:#94a3b8;margin-bottom:24px;font-family:monospace;font-size:14px">Skor Anda telah disimpan di sistem SIKA.</p>' +
-                        '<div style="font-size:4.5rem;font-weight:800;letter-spacing:-0.05em;margin-bottom:16px;' + scoreColor + '">' + score + '</div>' +
-                        timeHtml +
-                        wrongHtml,
-                    background: '#1E293B',
-                    customClass: {
-                        popup: 'border border-slate-700 rounded-3xl shadow-2xl',
-                        actions: 'flex flex-col gap-3 w-full px-4',
-                        confirmButton: 'w-full py-3 rounded-xl bg-white text-black font-bold hover:bg-slate-200 transition-colors m-0',
-                        denyButton: 'w-full py-3 rounded-xl bg-[#020617] text-slate-300 font-bold hover:bg-slate-800 border border-slate-700 transition-colors m-0'
-                    },
-                    buttonsStyling: false,
-                    showCancelButton: false,
-                    showDenyButton: true,
-                    confirmButtonText: 'Kembali ke Dashboard',
-                    denyButtonText: 'Ulangi Kuis (Reset Jawaban)',
-                    allowOutsideClick: false,
-                    backdrop: 'rgba(0,0,0,0.6)'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/dashboard';
-                    } else if (result.isDenied) {
-                        Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id')).call('resetQuiz');
-                    }
-                });
+            Swal.fire({
+                icon: score >= 70 ? 'success' : 'error',
+                title: 'Evaluasi Selesai!',
+                html:
+                    '<div style="text-align:center;margin-bottom:16px">' +
+                        '<p style="color:#94a3b8;font-family:monospace;font-size:14px;margin-bottom:20px">Skor Anda telah disimpan di sistem SIKA.</p>' +
+                        '<div style="font-size:4rem;font-weight:800;letter-spacing:-0.05em;margin-bottom:16px;' + (score >= 70 ? 'color:#CCFF00' : 'color:#ef4444') + '">' + score + '</div>' +
+                    '</div>' +
+                    '<div style="display:flex;justify-content:center;gap:24px;margin-bottom:20px">' +
+                        '<div style="text-align:center"><p style="font-size:12px;color:#94a3b8;font-family:monospace;text-transform:uppercase;margin-bottom:4px">Waktu</p><p style="font-size:1.3rem;font-weight:800;color:#00F0FF;font-family:monospace">' + timeStr + '</p></div>' +
+                        '<div style="width:1px;background:rgba(100,116,139,0.4)"></div>' +
+                        '<div style="text-align:center"><p style="font-size:12px;color:#94a3b8;font-family:monospace;text-transform:uppercase;margin-bottom:4px">Benar</p><p style="font-size:1.3rem;font-weight:800;color:#CCFF00;font-family:monospace">' + correctCount + '/' + totalQuestions + '</p></div>' +
+                        '<div style="width:1px;background:rgba(100,116,139,0.4)"></div>' +
+                        '<div style="text-align:center"><p style="font-size:12px;color:#94a3b8;font-family:monospace;text-transform:uppercase;margin-bottom:4px">Salah</p><p style="font-size:1.3rem;font-weight:800;color:#ef4444;font-family:monospace">' + wrong.length + ' soal</p></div>' +
+                    '</div>' +
+                    (wrong.length > 0
+                        ? '<div style="background:rgba(2,6,23,0.5);border-radius:12px;padding:12px;border:1px solid rgba(51,65,85,0.5);text-align:left"><p style="font-size:13px;font-weight:bold;color:white;margin-bottom:8px">Nomor soal yang salah:</p><div style="display:flex;flex-wrap:wrap;gap:6px">' + wrong.map(function(w) { return '<span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;background:rgba(239,68,68,0.2);color:#ef4444;font-family:monospace;font-size:13px;border:1px solid rgba(239,68,68,0.3);font-weight:bold">' + w + '</span>'; }).join('') + '</div></div>'
+                        : '<div style="background:rgba(204,255,0,0.1);border-radius:12px;padding:12px;border:1px solid rgba(204,255,0,0.3);text-align:center"><p style="font-size:13px;font-weight:bold;color:#CCFF00">Sempurna! Semua jawaban benar.</p></div>'),
+                background: '#1E293B',
+                color: '#ffffff',
+                showCancelButton: true,
+                confirmButtonColor: '#EA580C',
+                cancelButtonColor: '#334155',
+                confirmButtonText: 'Kembali ke Dashboard',
+                cancelButtonText: 'Ulangi Kuis',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'border border-slate-700 rounded-3xl shadow-2xl',
+                },
+                backdrop: 'rgba(0,0,0,0.6)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/dashboard';
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    $wire.call('resetQuiz');
+                }
             });
         });
     </script>
+    @endscript
 </div>
