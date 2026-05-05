@@ -142,6 +142,74 @@
         @else
             <!-- Unlocked State: Questions -->
             <div class="relative z-10 space-y-10">
+
+                {{-- Score Banner (above quiz questions when submitted) --}}
+                @if($quizSubmitted)
+                    <div class="rounded-2xl border border-[#CCFF00]/30 bg-gradient-to-r from-[#CCFF00]/5 to-[#00F0FF]/5 p-6 relative overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#CCFF00] rounded-full mix-blend-multiply filter blur-[50px] opacity-20 pointer-events-none"></div>
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+                            <div class="flex items-center gap-6">
+                                {{-- Score --}}
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-xl {{ $finalScore >= 70 ? 'bg-[#CCFF00]/20 text-[#CCFF00]' : 'bg-red-500/20 text-red-400' }} flex items-center justify-center">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-mono text-slate-400 uppercase tracking-wider">Skor</p>
+                                        <p class="text-2xl font-extrabold {{ $finalScore >= 70 ? 'text-[#CCFF00]' : 'text-red-400' }} font-mono">{{ $finalScore }}</p>
+                                    </div>
+                                </div>
+
+                                {{-- Divider --}}
+                                <div class="w-px h-12 bg-slate-700 hidden md:block"></div>
+
+                                {{-- Time --}}
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-xl bg-[#00F0FF]/20 text-[#00F0FF] flex items-center justify-center">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-mono text-slate-400 uppercase tracking-wider">Waktu</p>
+                                        <p class="text-2xl font-extrabold text-[#00F0FF] font-mono">
+                                            {{ sprintf('%02d:%02d', floor($timeTaken / 60), $timeTaken % 60) }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- Divider --}}
+                                <div class="w-px h-12 bg-slate-700 hidden md:block"></div>
+
+                                {{-- Wrong count --}}
+                                <div class="flex items-center gap-3 hidden md:flex">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-mono text-slate-400 uppercase tracking-wider">Benar</p>
+                                        <p class="text-2xl font-extrabold text-purple-400 font-mono">
+                                            {{ $activeModule->quizzes->count() - count($wrongQuestions) }}/{{ $activeModule->quizzes->count() }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button wire:click="resetQuiz"
+                                class="px-6 py-3 rounded-xl bg-[#1E293B] border border-white/10 text-white font-bold hover:bg-white/5 hover:border-white/20 transition-all text-sm flex items-center gap-2 spring-bounce shrink-0 shadow-lg">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Ulangi Kuis
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
                 @foreach($this->paginatedQuizzes as $index => $quiz)
                     <div wire:key="quiz-{{ $quiz->id }}" class="flex flex-col md:flex-row justify-between gap-8 pb-4 relative">
                         <!-- Question -->
@@ -235,15 +303,8 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
-                                    Selesai — Skor: {{ $finalScore }}
+                                    Kuis Selesai
                                 </div>
-                                <button wire:click="resetQuiz"
-                                    class="px-6 py-2 rounded-xl bg-[#1E293B] border border-white/10 text-white font-medium hover:bg-white/5 transition-colors text-sm flex items-center gap-2 spring-bounce">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
-                                    Ulangi Kuis
-                                </button>
                             @else
                                 <button wire:click="submitQuiz"
                                     class="px-6 py-2 rounded-xl bg-[#CCFF00] text-black font-bold hover:bg-[#d4ff33] hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-all text-sm flex items-center gap-2 spring-bounce">
@@ -266,6 +327,10 @@
             Livewire.on('swal:score', (data) => {
                 const score = data[0].score;
                 const wrong = data[0].wrongQuestions;
+                const timeTaken = data[0].timeTaken || 0;
+                const mins = Math.floor(timeTaken / 60);
+                const secs = timeTaken % 60;
+                const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
 
                 let iconHtml = score >= 70
                     ? '<div style="margin:0 auto;width:80px;height:80px;border-radius:50%;background:rgba(204,255,0,0.2);color:#CCFF00;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(204,255,0,0.3)"><svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>'
@@ -275,6 +340,12 @@
                     ? 'color:#CCFF00;text-shadow:0 0 15px rgba(204,255,0,0.5)'
                     : 'color:#ef4444;text-shadow:0 0 15px rgba(239,68,68,0.5)';
 
+                let timeHtml = '<div style="display:flex;justify-content:center;gap:24px;margin-bottom:24px">' +
+                    '<div style="text-align:center"><p style="font-size:12px;color:#94a3b8;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Waktu</p><p style="font-size:1.5rem;font-weight:800;color:#00F0FF;font-family:monospace">' + timeStr + '</p></div>' +
+                    '<div style="width:1px;background:rgba(51,65,85,0.5)"></div>' +
+                    '<div style="text-align:center"><p style="font-size:12px;color:#94a3b8;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Salah</p><p style="font-size:1.5rem;font-weight:800;color:#ef4444;font-family:monospace">' + wrong.length + ' soal</p></div>' +
+                    '</div>';
+
                 let wrongHtml = wrong.length > 0
                     ? '<div style="background:rgba(2,6,23,0.5);border-radius:12px;padding:16px;margin-bottom:24px;border:1px solid rgba(51,65,85,0.5);text-align:left"><p style="font-size:14px;font-weight:bold;color:white;margin-bottom:8px">Soal yang perlu diperbaiki:</p><div style="display:flex;flex-wrap:wrap;gap:8px">' + wrong.map(w => '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:4px;background:rgba(239,68,68,0.2);color:#ef4444;font-family:monospace;font-size:14px;border:1px solid rgba(239,68,68,0.3);font-weight:bold">' + w + '</span>').join('') + '</div></div>'
                     : '<div style="background:rgba(204,255,0,0.1);border-radius:12px;padding:16px;margin-bottom:24px;border:1px solid rgba(204,255,0,0.3);text-align:center"><p style="font-size:14px;font-weight:bold;color:#CCFF00">Luar Biasa! Anda menjawab seluruh soal dengan sempurna.</p></div>';
@@ -283,7 +354,8 @@
                     html: iconHtml +
                         '<h2 style="font-size:1.875rem;font-weight:bold;color:white;margin-top:20px;margin-bottom:8px">Evaluasi Selesai!</h2>' +
                         '<p style="color:#94a3b8;margin-bottom:24px;font-family:monospace;font-size:14px">Skor Anda telah disimpan di sistem SIKA.</p>' +
-                        '<div style="font-size:4.5rem;font-weight:800;letter-spacing:-0.05em;margin-bottom:32px;' + scoreColor + '">' + score + '</div>' +
+                        '<div style="font-size:4.5rem;font-weight:800;letter-spacing:-0.05em;margin-bottom:16px;' + scoreColor + '">' + score + '</div>' +
+                        timeHtml +
                         wrongHtml,
                     background: '#1E293B',
                     customClass: {

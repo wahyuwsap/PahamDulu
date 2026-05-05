@@ -29,6 +29,8 @@ class ModuleViewer extends Component
     public $quizSubmitted = false;
     public $finalScore = 0;
     public $wrongQuestions = [];
+    public $quizStartedAt = null;
+    public $timeTaken = 0;
 
     public function mount($id)
     {
@@ -53,6 +55,7 @@ class ModuleViewer extends Component
             if ($progress && $progress->is_completed) {
                 $this->finalScore = $progress->score;
                 $this->quizSubmitted = true;
+                $this->timeTaken = $progress->time_taken ?? 0;
                 if (!empty($progress->answers)) {
                     $this->userAnswers = $progress->answers;
                 }
@@ -127,6 +130,11 @@ class ModuleViewer extends Component
         if ($this->quizSubmitted)
             return;
 
+        // Start timer on first answer
+        if ($this->quizStartedAt === null) {
+            $this->quizStartedAt = now()->timestamp;
+        }
+
         $this->userAnswers[$quizId] = $answer;
     }
 
@@ -157,6 +165,11 @@ class ModuleViewer extends Component
         $this->finalScore = (int) round(($correctAnswers / $totalQuizzes) * 100);
         $this->quizSubmitted = true;
 
+        // Calculate time taken
+        if ($this->quizStartedAt) {
+            $this->timeTaken = now()->timestamp - $this->quizStartedAt;
+        }
+
         // Save to database
         if (auth()->check()) {
             UserModuleProgress::updateOrCreate(
@@ -165,12 +178,13 @@ class ModuleViewer extends Component
                     'is_unlocked' => true,
                     'is_completed' => true,
                     'score' => $this->finalScore,
-                    'answers' => $this->userAnswers
+                    'answers' => $this->userAnswers,
+                    'time_taken' => $this->timeTaken,
                 ]
             );
         }
 
-        $this->dispatch('swal:score', score: $this->finalScore, wrongQuestions: $this->wrongQuestions);
+        $this->dispatch('swal:score', score: $this->finalScore, wrongQuestions: $this->wrongQuestions, timeTaken: $this->timeTaken);
     }
 
     public function resetQuiz()
@@ -180,6 +194,8 @@ class ModuleViewer extends Component
         $this->wrongQuestions = [];
         $this->quizSubmitted = false;
         $this->finalScore = 0;
+        $this->quizStartedAt = null;
+        $this->timeTaken = 0;
 
         // Reset progress in database but keep the record (score is preserved via history)
         if (auth()->check()) {

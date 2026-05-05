@@ -18,6 +18,7 @@ class UserModuleProgress extends Model
         'is_completed',
         'score',
         'answers',
+        'time_taken',
     ];
 
     protected $casts = [
