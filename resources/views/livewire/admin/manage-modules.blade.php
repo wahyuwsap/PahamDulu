@@ -102,259 +102,257 @@
 
     <!-- Modal Form -->
     @if($isModalOpen)
-        @teleport('body')
-        <div
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl overflow-y-auto py-10 px-4">
+        <template x-teleport="body">
             <div
-                class="bg-[#1E293B] border border-white/10 w-full max-w-4xl mx-auto rounded-3xl shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto no-scrollbar">
-
+                class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto py-10 px-4">
                 <div
-                    class="flex justify-between items-center mb-6 border-b border-white/10 pb-4 sticky top-0 bg-[#1E293B] z-[10] pt-6 md:pt-8 -mt-6 md:-mt-8">
-                    <h2 class="text-2xl font-bold text-white">{{ $isEditMode ? 'Edit Modul' : 'Tambah Modul Baru' }}</h2>
-                    <button type="button" wire:click="closeModal"
-                        class="text-slate-400 hover:text-white transition-colors bg-[#020617] rounded-full p-1.5 border border-white/10 hover:bg-white/10">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+                    class="bg-[#1E293B] border border-white/10 w-full max-w-4xl mx-auto rounded-3xl shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto no-scrollbar">
 
-                <form wire:submit.prevent="saveModule" class="space-y-8">
-                    <!-- Basic Info Section -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-[#00F0FF] flex items-center gap-2">
-                            <span class="w-6 h-6 rounded bg-[#00F0FF]/20 flex items-center justify-center text-sm">1</span>
-                            Informasi Modul
-                        </h3>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Judul Modul</label>
-                            <input wire:model="title" type="text"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors">
-                            @error('title') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-1">Sub Judul</label>
-                                <input wire:model="subtitle" type="text"
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors">
-                                @error('subtitle') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-1">Urutan (Order)</label>
-                                <input wire:model="order" type="number"
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors">
-                                @error('order') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Deskripsi Singkat</label>
-                            <textarea wire:model="description" rows="2"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors"></textarea>
-                            @error('description') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Konten Tambahan Lengkap</label>
-                            <textarea wire:model="content" rows="4"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors"></textarea>
-                            @error('content') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-
-                    <!-- Videos Section -->
-                    <div class="space-y-4 pt-4 border-t border-white/10">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-semibold text-red-400 flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded bg-red-400/20 flex items-center justify-center text-sm">2</span>
-                                Video YouTube
-                            </h3>
-                            <button type="button" wire:click="addVideo"
-                                class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg hover:bg-red-500/30 transition-colors">+
-                                Tambah Video</button>
-                        </div>
-
-                        <div class="space-y-4">
-                            @foreach($videos as $index => $video)
-                                <div wire:key="{{ $video['_key'] ?? 'vid_' . $index }}"
-                                    class="p-4 rounded-xl border border-white/10 bg-white/5 relative mt-4">
-                                    <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
-                                        <h4 class="text-sm font-semibold text-white">Video #{{ $index + 1 }}</h4>
-                                        <button type="button" wire:click="removeVideo({{ $index }})"
-                                            class="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-colors border border-red-500/30">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg> Hapus
-                                        </button>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                                        <div class="md:col-span-6">
-                                            <label class="block text-xs font-medium text-slate-400 mb-1">Judul Video</label>
-                                            <input wire:model="videos.{{ $index }}.title" type="text"
-                                                class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400 transition-colors">
-                                            @error('videos.' . $index . '.title') <span
-                                            class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                        </div>
-                                        <div class="md:col-span-4">
-                                            <label class="block text-xs font-medium text-slate-400 mb-1">YouTube ID (misal:
-                                                dQw4w9WgXcQ)</label>
-                                            <input wire:model="videos.{{ $index }}.youtube_id" type="text"
-                                                class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400 transition-colors">
-                                            @error('videos.' . $index . '.youtube_id') <span
-                                            class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label class="block text-xs font-medium text-slate-400 mb-1">Urutan</label>
-                                            <input wire:model="videos.{{ $index }}.order" type="number"
-                                                class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400 transition-colors">
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                            @if(count($videos) === 0)
-                                <p
-                                    class="text-sm text-slate-500 italic text-center py-4 bg-white/5 rounded-xl border border-white/10 border-dashed">
-                                    Belum ada video ditambahkan.</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Quizzes Section -->
-                    <div class="space-y-4 pt-4 border-t border-white/10">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-semibold text-[#CCFF00] flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded bg-[#CCFF00]/20 flex items-center justify-center text-sm text-[#CCFF00]">3</span>
-                                Soal Kuis
-                            </h3>
-                            <button type="button" wire:click="addQuiz"
-                                class="text-xs bg-[#CCFF00]/10 text-[#CCFF00] border border-[#CCFF00]/30 px-3 py-1.5 rounded-lg hover:bg-[#CCFF00]/20 transition-colors">+
-                                Tambah Soal</button>
-                        </div>
-
-                        <div class="space-y-6">
-                            @foreach($quizzes as $index => $quiz)
-                                <div wire:key="{{ $quiz['_key'] ?? 'quiz_' . $index }}"
-                                    class="p-5 rounded-xl border border-[#CCFF00]/20 bg-white/5 relative mt-4">
-                                    <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
-                                        <h4 class="text-sm font-semibold text-[#CCFF00]">Soal Kuis #{{ $index + 1 }}</h4>
-                                        <button type="button" wire:click="removeQuiz({{ $index }})"
-                                            class="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-colors border border-red-500/30">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg> Hapus
-                                        </button>
-                                    </div>
-
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-400 mb-1">Pertanyaan</label>
-                                            <textarea wire:model="quizzes.{{ $index }}.question" rows="2"
-                                                class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors"></textarea>
-                                            @error('quizzes.' . $index . '.question') <span
-                                            class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                        </div>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-sm font-bold text-slate-500 w-6">A.</span>
-                                                <input wire:model="quizzes.{{ $index }}.option_a" type="text"
-                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-sm font-bold text-slate-500 w-6">B.</span>
-                                                <input wire:model="quizzes.{{ $index }}.option_b" type="text"
-                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-sm font-bold text-slate-500 w-6">C.</span>
-                                                <input wire:model="quizzes.{{ $index }}.option_c" type="text"
-                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-sm font-bold text-slate-500 w-6">D.</span>
-                                                <input wire:model="quizzes.{{ $index }}.option_d" type="text"
-                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-400 mb-1">Jawaban Benar</label>
-                                            <select wire:model="quizzes.{{ $index }}.correct_answer"
-                                                class="w-full md:w-1/3 bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
-                                                <option value="a">A</option>
-                                                <option value="b">B</option>
-                                                <option value="c">C</option>
-                                                <option value="d">D</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                            @if(count($quizzes) === 0)
-                                <p
-                                    class="text-sm text-slate-500 italic text-center py-4 bg-white/5 rounded-xl border border-white/10 border-dashed">
-                                    Belum ada soal kuis ditambahkan.</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Footer / Submit -->
                     <div
-                        class="pt-6 border-t border-white/10 flex justify-end gap-3 sticky bottom-0 bg-[#1E293B] pb-2 z-[5]">
+                        class="flex justify-between items-center mb-6 border-b border-white/10 pb-4 sticky top-0 bg-[#1E293B] z-[10] pt-6 md:pt-8 -mt-6 md:-mt-8">
+                        <h2 class="text-2xl font-bold text-white">{{ $isEditMode ? 'Edit Modul' : 'Tambah Modul Baru' }}
+                        </h2>
                         <button type="button" wire:click="closeModal"
-                            class="px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 transition-colors">Batal</button>
-                        <button type="submit"
-                            class="px-5 py-2.5 rounded-xl bg-[#00F0FF] text-[#020617] font-bold shadow-[0_0_15px_rgba(0,240,255,0.4)] hover:scale-105 transition-transform">
-                            {{ $isEditMode ? 'Simpan Perubahan Modul' : 'Buat Modul Sekarang' }}
+                            class="text-slate-400 hover:text-white transition-colors bg-[#020617] rounded-full p-1.5 border border-white/10 hover:bg-white/10">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                         </button>
                     </div>
-                </form>
+
+                    <form wire:submit.prevent="saveModule" class="space-y-8">
+                        <!-- Basic Info Section -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold text-[#00F0FF] flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 rounded bg-[#00F0FF]/20 flex items-center justify-center text-sm">1</span>
+                                Informasi Modul
+                            </h3>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Judul Modul</label>
+                                <input wire:model="title" type="text"
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors">
+                                @error('title') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1">Sub Judul</label>
+                                    <input wire:model="subtitle" type="text"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors">
+                                    @error('subtitle') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-300 mb-1">Urutan (Order)</label>
+                                    <input wire:model="order" type="number"
+                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors">
+                                    @error('order') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Deskripsi Singkat</label>
+                                <textarea wire:model="description" rows="2"
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors"></textarea>
+                                @error('description') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Konten Tambahan Lengkap</label>
+                                <textarea wire:model="content" rows="4"
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors"></textarea>
+                                @error('content') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Videos Section -->
+                        <div class="space-y-4 pt-4 border-t border-white/10">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-red-400 flex items-center gap-2">
+                                    <span
+                                        class="w-6 h-6 rounded bg-red-400/20 flex items-center justify-center text-sm">2</span>
+                                    Video YouTube
+                                </h3>
+                                <button type="button" wire:click="addVideo"
+                                    class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg hover:bg-red-500/30 transition-colors">+
+                                    Tambah Video</button>
+                            </div>
+
+                            <div class="space-y-4">
+                                @foreach($videos as $index => $video)
+                                    <div wire:key="{{ $video['_key'] ?? 'vid_' . $index }}"
+                                        class="p-4 rounded-xl border border-white/10 bg-white/5 relative mt-4">
+                                        <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
+                                            <h4 class="text-sm font-semibold text-white">Video #{{ $index + 1 }}</h4>
+                                            <button type="button" wire:click="removeVideo({{ $index }})"
+                                                class="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-colors border border-red-500/30">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg> Hapus
+                                            </button>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                            <div class="md:col-span-6">
+                                                <label class="block text-xs font-medium text-slate-400 mb-1">Judul Video</label>
+                                                <input wire:model="videos.{{ $index }}.title" type="text"
+                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400 transition-colors">
+                                                @error('videos.' . $index . '.title') <span
+                                                class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                            </div>
+                                            <div class="md:col-span-4">
+                                                <label class="block text-xs font-medium text-slate-400 mb-1">YouTube ID (misal:
+                                                    dQw4w9WgXcQ)</label>
+                                                <input wire:model="videos.{{ $index }}.youtube_id" type="text"
+                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400 transition-colors">
+                                                @error('videos.' . $index . '.youtube_id') <span
+                                                class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <label class="block text-xs font-medium text-slate-400 mb-1">Urutan</label>
+                                                <input wire:model="videos.{{ $index }}.order" type="number"
+                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-400 transition-colors">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @if(count($videos) === 0)
+                                    <p
+                                        class="text-sm text-slate-500 italic text-center py-4 bg-white/5 rounded-xl border border-white/10 border-dashed">
+                                        Belum ada video ditambahkan.</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Quizzes Section -->
+                        <div class="space-y-4 pt-4 border-t border-white/10">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-[#CCFF00] flex items-center gap-2">
+                                    <span
+                                        class="w-6 h-6 rounded bg-[#CCFF00]/20 flex items-center justify-center text-sm text-[#CCFF00]">3</span>
+                                    Soal Kuis
+                                </h3>
+                                <button type="button" wire:click="addQuiz"
+                                    class="text-xs bg-[#CCFF00]/10 text-[#CCFF00] border border-[#CCFF00]/30 px-3 py-1.5 rounded-lg hover:bg-[#CCFF00]/20 transition-colors">+
+                                    Tambah Soal</button>
+                            </div>
+
+                            <div class="space-y-6">
+                                @foreach($quizzes as $index => $quiz)
+                                    <div wire:key="{{ $quiz['_key'] ?? 'quiz_' . $index }}"
+                                        class="p-5 rounded-xl border border-[#CCFF00]/20 bg-white/5 relative mt-4">
+                                        <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
+                                            <h4 class="text-sm font-semibold text-[#CCFF00]">Soal Kuis #{{ $index + 1 }}</h4>
+                                            <button type="button" wire:click="removeQuiz({{ $index }})"
+                                                class="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-colors border border-red-500/30">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg> Hapus
+                                            </button>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-xs font-medium text-slate-400 mb-1">Pertanyaan</label>
+                                                <textarea wire:model="quizzes.{{ $index }}.question" rows="2"
+                                                    class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors"></textarea>
+                                                @error('quizzes.' . $index . '.question') <span
+                                                class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm font-bold text-slate-500 w-6">A.</span>
+                                                    <input wire:model="quizzes.{{ $index }}.option_a" type="text"
+                                                        class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm font-bold text-slate-500 w-6">B.</span>
+                                                    <input wire:model="quizzes.{{ $index }}.option_b" type="text"
+                                                        class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm font-bold text-slate-500 w-6">C.</span>
+                                                    <input wire:model="quizzes.{{ $index }}.option_c" type="text"
+                                                        class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm font-bold text-slate-500 w-6">D.</span>
+                                                    <input wire:model="quizzes.{{ $index }}.option_d" type="text"
+                                                        class="w-full bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-medium text-slate-400 mb-1">Jawaban
+                                                    Benar</label>
+                                                <select wire:model="quizzes.{{ $index }}.correct_answer"
+                                                    class="w-full md:w-1/3 bg-[#020617] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#CCFF00] transition-colors">
+                                                    <option value="a">A</option>
+                                                    <option value="b">B</option>
+                                                    <option value="c">C</option>
+                                                    <option value="d">D</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @if(count($quizzes) === 0)
+                                    <p
+                                        class="text-sm text-slate-500 italic text-center py-4 bg-white/5 rounded-xl border border-white/10 border-dashed">
+                                        Belum ada soal kuis ditambahkan.</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Footer / Submit -->
+                        <div
+                            class="pt-6 border-t border-white/10 flex justify-end gap-3 sticky bottom-0 bg-[#1E293B] pb-2 z-[5]">
+                            <button type="button" wire:click="closeModal"
+                                class="px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 transition-colors">Batal</button>
+                            <button type="submit"
+                                class="px-5 py-2.5 rounded-xl bg-[#00F0FF] text-[#020617] font-bold shadow-[0_0_15px_rgba(0,240,255,0.4)] hover:scale-105 transition-transform">
+                                {{ $isEditMode ? 'Simpan Perubahan Modul' : 'Buat Modul Sekarang' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-        @endteleport
+        </template>
     @endif
 
-    <!-- Delete Confirmation Modal -->
-    @if($isDeleteModalOpen)
-        @teleport('body')
-        <div class="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-xl px-4">
-            <div
-                class="bg-[#1E293B] border border-red-500/30 w-full max-w-md rounded-3xl shadow-2xl p-6 md:p-8 relative text-center">
-                <div
-                    class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/50">
-                    <svg class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                </div>
-
-                <h3 class="text-2xl font-bold text-white mb-2">Hapus Modul?</h3>
-                <p class="text-slate-400 mb-8">
-                    Tindakan ini tidak dapat dibatalkan. Seluruh data video pembelajaran dan kuis yang tertaut pada modul
-                    ini juga akan ikut terhapus.
-                </p>
-
-                <div class="flex gap-4 justify-center">
-                    <button wire:click="closeDeleteModal"
-                        class="px-6 py-3 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 font-semibold transition-colors flex-1">
-                        Batal
-                    </button>
-                    <button wire:click="deleteModule"
-                        class="px-6 py-3 rounded-xl bg-red-500 text-white font-bold shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:scale-105 transition-transform flex-1">
-                        Ya, Hapus
-                    </button>
-                </div>
-            </div>
-        </div>
-        @endteleport
-    @endif
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('swal:confirm-delete', (event) => {
+                Swal.fire({
+                    title: 'DELETE',
+                    text: "Hapus Data Modul Ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Yes, delete!',
+                    cancelButtonText: 'Cancel',
+                    background: '#ffffff',
+                    color: '#334155',
+                    backdrop: `
+                        rgba(0,0,0,0.4)
+                        backdrop-filter: blur(4px)
+                    `
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        @this.call('deleteModule')
+                    }
+                });
+            });
+        });
+    </script>
 </div>

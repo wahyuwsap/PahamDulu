@@ -184,7 +184,7 @@ class ManageModules extends Component
     public function confirmDelete($id)
     {
         $this->moduleToDelete = $id;
-        $this->isDeleteModalOpen = true;
+        $this->dispatch('swal:confirm-delete');
     }
 
     public function closeDeleteModal()
