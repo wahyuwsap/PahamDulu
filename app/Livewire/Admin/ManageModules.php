@@ -15,6 +15,8 @@ class ManageModules extends Component
 
     public $isModalOpen = false;
     public $isEditMode = false;
+    public $isDeleteModalOpen = false;
+    public $moduleToDelete = null;
     public $moduleId;
     public $title, $subtitle, $order, $description, $content;
     
@@ -51,6 +53,7 @@ class ManageModules extends Component
     public function addVideo()
     {
         $this->videos[] = [
+            '_key' => uniqid('vid_'),
             'title' => '',
             'youtube_id' => '',
             'order' => count($this->videos) + 1
@@ -66,6 +69,7 @@ class ManageModules extends Component
     public function addQuiz()
     {
         $this->quizzes[] = [
+            '_key' => uniqid('quiz_'),
             'question' => '',
             'option_a' => '',
             'option_b' => '',
@@ -111,8 +115,17 @@ class ManageModules extends Component
         $this->description = $module->description;
         $this->content = $module->content;
         
-        $this->videos = $module->videos->toArray();
-        $this->quizzes = $module->quizzes->toArray();
+        $this->videos = $module->videos->map(function ($v) {
+            $arr = $v->toArray();
+            $arr['_key'] = 'vid_' . $v->id;
+            return $arr;
+        })->toArray();
+        
+        $this->quizzes = $module->quizzes->map(function ($q) {
+            $arr = $q->toArray();
+            $arr['_key'] = 'quiz_' . $q->id;
+            return $arr;
+        })->toArray();
         
         $this->isEditMode = true;
         $this->isModalOpen = true;
@@ -133,13 +146,17 @@ class ManageModules extends Component
                     'content' => $this->content,
                 ]);
 
+                // Strip _key before saving
+                $videosData = collect($this->videos)->map(function ($v) { unset($v['_key']); return $v; })->toArray();
+                $quizzesData = collect($this->quizzes)->map(function ($q) { unset($q['_key']); return $q; })->toArray();
+
                 // Sync videos
                 $module->videos()->delete();
-                $module->videos()->createMany($this->videos);
+                $module->videos()->createMany($videosData);
 
                 // Sync quizzes
                 $module->quizzes()->delete();
-                $module->quizzes()->createMany($this->quizzes);
+                $module->quizzes()->createMany($quizzesData);
 
                 session()->flash('message', 'Modul beserta video dan kuis berhasil diperbarui.');
             } else {
@@ -151,8 +168,11 @@ class ManageModules extends Component
                     'content' => $this->content,
                 ]);
 
-                $module->videos()->createMany($this->videos);
-                $module->quizzes()->createMany($this->quizzes);
+                $videosData = collect($this->videos)->map(function ($v) { unset($v['_key']); return $v; })->toArray();
+                $quizzesData = collect($this->quizzes)->map(function ($q) { unset($q['_key']); return $q; })->toArray();
+
+                $module->videos()->createMany($videosData);
+                $module->quizzes()->createMany($quizzesData);
 
                 session()->flash('message', 'Modul baru beserta video dan kuis berhasil ditambahkan.');
             }
@@ -161,11 +181,28 @@ class ManageModules extends Component
         $this->closeModal();
     }
 
-    public function deleteModule($id)
+    public function confirmDelete($id)
     {
-        $module = Module::findOrFail($id);
-        $module->delete(); // Cascades on DB level for relations
-        session()->flash('message', 'Modul berhasil dihapus.');
+        $this->moduleToDelete = $id;
+        $this->isDeleteModalOpen = true;
+    }
+
+    public function closeDeleteModal()
+    {
+        $this->isDeleteModalOpen = false;
+        $this->moduleToDelete = null;
+    }
+
+    public function deleteModule()
+    {
+        if ($this->moduleToDelete) {
+            $module = Module::findOrFail($this->moduleToDelete);
+            $module->delete(); // Cascades on DB level for relations
+            session()->flash('message', 'Modul beserta video dan kuisnya berhasil dihapus.');
+            
+            $this->isDeleteModalOpen = false;
+            $this->moduleToDelete = null;
+        }
     }
 
     public function render()

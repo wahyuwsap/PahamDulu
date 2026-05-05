@@ -9,7 +9,7 @@
                 <input wire:model.live="search" type="text"
                     class="w-full bg-[#1E293B]/60 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-white focus:outline-none focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF] transition-colors"
                     placeholder="Cari modul...">
-                <div class="absolute right-3 top-3.5 text-slate-400">
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -43,9 +43,8 @@
                             class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 font-bold">
                             #{{ $module->order }}
                         </div>
-                        <button wire:click="deleteModule({{ $module->id }})"
-                            wire:confirm="Apakah Anda yakin ingin menghapus modul ini beserta seluruh video dan kuisnya?"
-                            class="text-slate-500 hover:text-red-400 transition-colors">
+                        <button wire:click="confirmDelete({{ $module->id }})"
+                            class="text-slate-500 hover:text-red-400 transition-colors bg-white/5 p-2 rounded-lg border border-transparent hover:border-red-400/30">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -103,20 +102,23 @@
 
     <!-- Modal Form -->
     @if($isModalOpen)
+        @teleport('body')
         <div
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto py-10 px-4">
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl overflow-y-auto py-10 px-4">
             <div
                 class="bg-[#1E293B] border border-white/10 w-full max-w-4xl mx-auto rounded-3xl shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto no-scrollbar">
-                <button type="button" wire:click="closeModal"
-                    class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-[#020617] rounded-full p-1 z-10">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                <h2
-                    class="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-4 sticky top-0 bg-[#1E293B] z-[5]">
-                    {{ $isEditMode ? 'Edit Modul' : 'Tambah Modul Baru' }}
-                </h2>
+
+                <div
+                    class="flex justify-between items-center mb-6 border-b border-white/10 pb-4 sticky top-0 bg-[#1E293B] z-[10] pt-6 md:pt-8 -mt-6 md:-mt-8">
+                    <h2 class="text-2xl font-bold text-white">{{ $isEditMode ? 'Edit Modul' : 'Tambah Modul Baru' }}</h2>
+                    <button type="button" wire:click="closeModal"
+                        class="text-slate-400 hover:text-white transition-colors bg-[#020617] rounded-full p-1.5 border border-white/10 hover:bg-white/10">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
 
                 <form wire:submit.prevent="saveModule" class="space-y-8">
                     <!-- Basic Info Section -->
@@ -180,15 +182,19 @@
 
                         <div class="space-y-4">
                             @foreach($videos as $index => $video)
-                                <div class="p-4 rounded-xl border border-white/10 bg-white/5 relative">
-                                    <button type="button" wire:click="removeVideo({{ $index }})"
-                                        class="absolute top-2 right-2 text-slate-500 hover:text-red-400">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mt-2">
+                                <div wire:key="{{ $video['_key'] ?? 'vid_' . $index }}"
+                                    class="p-4 rounded-xl border border-white/10 bg-white/5 relative mt-4">
+                                    <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
+                                        <h4 class="text-sm font-semibold text-white">Video #{{ $index + 1 }}</h4>
+                                        <button type="button" wire:click="removeVideo({{ $index }})"
+                                            class="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-colors border border-red-500/30">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg> Hapus
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                                         <div class="md:col-span-6">
                                             <label class="block text-xs font-medium text-slate-400 mb-1">Judul Video</label>
                                             <input wire:model="videos.{{ $index }}.title" type="text"
@@ -235,20 +241,20 @@
 
                         <div class="space-y-6">
                             @foreach($quizzes as $index => $quiz)
-                                <div class="p-5 rounded-xl border border-[#CCFF00]/20 bg-white/5 relative">
-                                    <div
-                                        class="absolute -left-3 -top-3 w-8 h-8 rounded-full bg-[#1E293B] border border-[#CCFF00]/50 flex items-center justify-center text-[#CCFF00] font-bold text-sm">
-                                        {{ $index + 1 }}
+                                <div wire:key="{{ $quiz['_key'] ?? 'quiz_' . $index }}"
+                                    class="p-5 rounded-xl border border-[#CCFF00]/20 bg-white/5 relative mt-4">
+                                    <div class="flex justify-between items-center mb-4 pb-2 border-b border-white/10">
+                                        <h4 class="text-sm font-semibold text-[#CCFF00]">Soal Kuis #{{ $index + 1 }}</h4>
+                                        <button type="button" wire:click="removeQuiz({{ $index }})"
+                                            class="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-colors border border-red-500/30">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg> Hapus
+                                        </button>
                                     </div>
-                                    <button type="button" wire:click="removeQuiz({{ $index }})"
-                                        class="absolute top-3 right-3 text-slate-500 hover:text-red-400">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
 
-                                    <div class="space-y-4 mt-2">
+                                    <div class="space-y-4">
                                         <div>
                                             <label class="block text-xs font-medium text-slate-400 mb-1">Pertanyaan</label>
                                             <textarea wire:model="quizzes.{{ $index }}.question" rows="2"
@@ -314,5 +320,41 @@
                 </form>
             </div>
         </div>
+        @endteleport
+    @endif
+
+    <!-- Delete Confirmation Modal -->
+    @if($isDeleteModalOpen)
+        @teleport('body')
+        <div class="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-xl px-4">
+            <div
+                class="bg-[#1E293B] border border-red-500/30 w-full max-w-md rounded-3xl shadow-2xl p-6 md:p-8 relative text-center">
+                <div
+                    class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/50">
+                    <svg class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+
+                <h3 class="text-2xl font-bold text-white mb-2">Hapus Modul?</h3>
+                <p class="text-slate-400 mb-8">
+                    Tindakan ini tidak dapat dibatalkan. Seluruh data video pembelajaran dan kuis yang tertaut pada modul
+                    ini juga akan ikut terhapus.
+                </p>
+
+                <div class="flex gap-4 justify-center">
+                    <button wire:click="closeDeleteModal"
+                        class="px-6 py-3 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 font-semibold transition-colors flex-1">
+                        Batal
+                    </button>
+                    <button wire:click="deleteModule"
+                        class="px-6 py-3 rounded-xl bg-red-500 text-white font-bold shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:scale-105 transition-transform flex-1">
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endteleport
     @endif
 </div>
