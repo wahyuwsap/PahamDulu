@@ -16,7 +16,6 @@ class Register extends Component
     public $password = '';
     public $password_confirmation = '';
     public $asal_instansi = '';
-    public $negara = '';
 
     public function register()
     {
@@ -25,7 +24,6 @@ class Register extends Component
             'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'asal_instansi' => 'required|string|max:255',
-            'negara' => 'required|string|max:255',
         ], [
             'name.required' => 'Nama wajib diisi.',
             'username.required' => 'Username wajib diisi.',
@@ -34,7 +32,6 @@ class Register extends Component
             'password.min' => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'asal_instansi.required' => 'Asal instansi wajib diisi.',
-            'negara.required' => 'Negara wajib diisi.',
         ]);
 
         $user = User::create([
@@ -42,7 +39,7 @@ class Register extends Component
             'username' => $this->username,
             'password' => Hash::make($this->password),
             'asal_instansi' => $this->asal_instansi,
-            'negara' => $this->negara,
+            'negara' => 'Indonesia',
         ]);
 
         Auth::login($user);

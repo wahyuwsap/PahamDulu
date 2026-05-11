@@ -26,9 +26,11 @@ class ChangePassword extends Component
             'password' => Hash::make($this->password),
         ]);
 
-        $this->reset(['current_password', 'password', 'password_confirmation']);
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
 
-        session()->flash('message', 'Kata sandi berhasil diubah!');
+        return redirect()->route('login')->with('message', 'Kata sandi berhasil diubah! Silakan masuk kembali dengan kata sandi baru Anda.');
     }
 
     public function render()

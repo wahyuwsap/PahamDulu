@@ -31,7 +31,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($modules as $module)
-            <div
+            <div wire:key="module-{{ $module->id }}"
                 class="bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden flex flex-col group">
                 <div
                     class="absolute -right-10 -top-10 w-32 h-32 bg-[#00F0FF]/10 blur-3xl rounded-full group-hover:bg-[#00F0FF]/20 transition-colors duration-500">

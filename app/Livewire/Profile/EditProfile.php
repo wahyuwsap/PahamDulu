@@ -41,9 +41,9 @@ class EditProfile extends Component
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'asal_instansi' => ['nullable', 'string', 'max:255'],
+            'asal_instansi' => ['required', 'string', 'max:255'],
             'negara' => ['nullable', 'string', 'max:255'],
-            'avatar' => ['nullable', 'image', 'max:2048'], // Max 2MB
+            'avatar' => ['nullable', 'image', 'max:12288'], // Max 12MB
         ]);
 
         if ($this->avatar) {

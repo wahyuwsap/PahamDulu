@@ -146,21 +146,53 @@ class ManageModules extends Component
                     'content' => $this->content,
                 ]);
 
-                // Strip _key before saving
-                $videosData = collect($this->videos)->map(function ($v) {
-                    unset($v['_key']);
-                    return $v; })->toArray();
-                $quizzesData = collect($this->quizzes)->map(function ($q) {
-                    unset($q['_key']);
-                    return $q; })->toArray();
-
                 // Sync videos
-                $module->videos()->delete();
-                $module->videos()->createMany($videosData);
+                $keptVideoIds = [];
+                foreach ($this->videos as $vData) {
+                    if (isset($vData['id'])) {
+                        $module->videos()->where('id', $vData['id'])->update([
+                            'title' => $vData['title'],
+                            'youtube_id' => $vData['youtube_id'],
+                            'order' => $vData['order']
+                        ]);
+                        $keptVideoIds[] = $vData['id'];
+                    } else {
+                        $newV = $module->videos()->create([
+                            'title' => $vData['title'],
+                            'youtube_id' => $vData['youtube_id'],
+                            'order' => $vData['order']
+                        ]);
+                        $keptVideoIds[] = $newV->id;
+                    }
+                }
+                $module->videos()->whereNotIn('id', $keptVideoIds)->delete();
 
                 // Sync quizzes
-                $module->quizzes()->delete();
-                $module->quizzes()->createMany($quizzesData);
+                $keptQuizIds = [];
+                foreach ($this->quizzes as $qData) {
+                    if (isset($qData['id'])) {
+                        $module->quizzes()->where('id', $qData['id'])->update([
+                            'question' => $qData['question'],
+                            'option_a' => $qData['option_a'],
+                            'option_b' => $qData['option_b'],
+                            'option_c' => $qData['option_c'],
+                            'option_d' => $qData['option_d'],
+                            'correct_answer' => $qData['correct_answer']
+                        ]);
+                        $keptQuizIds[] = $qData['id'];
+                    } else {
+                        $newQ = $module->quizzes()->create([
+                            'question' => $qData['question'],
+                            'option_a' => $qData['option_a'],
+                            'option_b' => $qData['option_b'],
+                            'option_c' => $qData['option_c'],
+                            'option_d' => $qData['option_d'],
+                            'correct_answer' => $qData['correct_answer']
+                        ]);
+                        $keptQuizIds[] = $newQ->id;
+                    }
+                }
+                $module->quizzes()->whereNotIn('id', $keptQuizIds)->delete();
 
                 session()->flash('message', 'Modul beserta video dan kuis berhasil diperbarui.');
             } else {

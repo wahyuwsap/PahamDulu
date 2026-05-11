@@ -71,22 +71,7 @@
                             @error('asal_instansi') <span class="text-red-400 text-xs mt-1.5 block font-mono animate-shake">{{ $message }}</span> @enderror
                         </div>
 
-                        <!-- Negara -->
-                        <div class="md:col-span-2">
-                            <label for="negara" class="block text-xs font-mono text-slate-400 mb-1.5 uppercase tracking-wider">Negara</label>
-                            <select 
-                                wire:model="negara" 
-                                id="negara" 
-                                class="w-full bg-[#020617]/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00F0FF]/50 focus:border-[#00F0FF] transition-all duration-300 @error('negara') border-red-500 focus:ring-red-500/50 focus:border-red-500 animate-shake @enderror appearance-none"
-                            >
-                                <option value="" class="bg-[#1E293B]">Pilih Negara</option>
-                                <option value="Indonesia" class="bg-[#1E293B]">Indonesia</option>
-                                <option value="Malaysia" class="bg-[#1E293B]">Malaysia</option>
-                                <option value="Singapore" class="bg-[#1E293B]">Singapore</option>
-                                <option value="Lainnya" class="bg-[#1E293B]">Lainnya</option>
-                            </select>
-                            @error('negara') <span class="text-red-400 text-xs mt-1.5 block font-mono animate-shake">{{ $message }}</span> @enderror
-                        </div>
+
 
                         <!-- Password -->
                         <div>
