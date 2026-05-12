@@ -98,8 +98,8 @@
     @if($isAddModalOpen)
         <template x-teleport="body">
             <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto py-10 px-4">
-                <div class="bg-[#1E293B] border border-white/10 w-full max-w-2xl mx-auto rounded-3xl shadow-2xl p-6 md:p-8 relative">
-                    <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <div class="bg-[#1E293B] border border-white/10 w-full max-w-4xl mx-auto rounded-3xl shadow-2xl p-6 md:p-10 relative max-h-[90vh] overflow-y-auto no-scrollbar">
+                    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4 sticky top-0 bg-[#1E293B] z-[10] pt-6 md:pt-10 -mt-6 md:-mt-10">
                         <h2 class="text-2xl font-bold text-white">Tambah Pengguna Baru</h2>
                         <button type="button" wire:click="closeAddModal" class="text-slate-400 hover:text-white transition-colors bg-[#020617] rounded-full p-1.5 border border-white/10 hover:bg-white/10">
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,7 +108,7 @@
                         </button>
                     </div>
 
-                    <form wire:submit.prevent="saveUser" class="space-y-4">
+                    <form wire:submit.prevent="saveUser" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-300 mb-1">Nama Lengkap</label>
@@ -122,16 +122,24 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-300 mb-1">Email (Opsional)</label>
                                 <input wire:model="email" type="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#CCFF00] focus:ring-1 focus:ring-[#CCFF00] transition-colors">
                                 @error('email') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
                                 <input wire:model="password" type="password" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#CCFF00] focus:ring-1 focus:ring-[#CCFF00] transition-colors">
                                 @error('password') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Konfirmasi Password</label>
+                                <input wire:model="password_confirmation" type="password" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#CCFF00] focus:ring-1 focus:ring-[#CCFF00] transition-colors">
+                                @error('password_confirmation') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
@@ -151,7 +159,7 @@
                             </div>
                         </div>
 
-                        <div class="pt-6 border-t border-white/10 flex justify-end gap-3 mt-4">
+                        <div class="pt-6 border-t border-white/10 flex justify-end gap-3 sticky bottom-0 bg-[#1E293B] pb-2 z-[5] mt-8">
                             <button type="button" wire:click="closeAddModal" class="px-5 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 transition-colors">Batal</button>
                             <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#CCFF00] text-[#020617] font-bold shadow-[0_0_15px_rgba(204,255,0,0.4)] hover:scale-105 transition-transform">Simpan Pengguna</button>
                         </div>
@@ -161,59 +169,59 @@
         </template>
     @endif
 
+    @script
     <script>
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.on('swal:confirm-delete-user', (event) => {
-                Swal.fire({
-                    title: 'HAPUS PENGGUNA',
-                    text: "Apakah Anda yakin ingin menghapus pengguna ini?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#94a3b8',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal',
-                    background: '#1E293B',
-                    color: '#ffffff',
-                    customClass: {
-                        popup: 'border border-slate-700 rounded-3xl shadow-2xl',
-                    },
-                    backdrop: `
-                        rgba(0,0,0,0.6)
-                        backdrop-filter: blur(8px)
-                    `
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        @this.call('deleteUser')
-                    }
-                });
+        $wire.on('swal:confirm-delete-user', () => {
+            Swal.fire({
+                title: 'HAPUS PENGGUNA',
+                text: "Apakah Anda yakin ingin menghapus pengguna ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal',
+                background: '#1E293B',
+                color: '#ffffff',
+                customClass: {
+                    popup: 'border border-slate-700 rounded-3xl shadow-2xl',
+                },
+                backdrop: `
+                    rgba(0,0,0,0.6)
+                    backdrop-filter: blur(8px)
+                `
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $wire.deleteUser()
+                }
             });
+        });
 
-            Livewire.on('swal:confirm-toggle-role', (event) => {
-                Swal.fire({
-                    title: 'UBAH ROLE',
-                    text: "Apakah Anda yakin ingin mengubah role pengguna ini?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#CCFF00',
-                    cancelButtonColor: '#94a3b8',
-                    confirmButtonText: '<span class="text-black font-bold">Ya, ubah!</span>',
-                    cancelButtonText: 'Batal',
-                    background: '#1E293B',
-                    color: '#ffffff',
-                    customClass: {
-                        popup: 'border border-slate-700 rounded-3xl shadow-2xl',
-                    },
-                    backdrop: `
-                        rgba(0,0,0,0.6)
-                        backdrop-filter: blur(8px)
-                    `
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        @this.call('toggleRole')
-                    }
-                });
+        $wire.on('swal:confirm-toggle-role', () => {
+            Swal.fire({
+                title: 'UBAH ROLE',
+                text: "Apakah Anda yakin ingin mengubah role pengguna ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#CCFF00',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: '<span class="text-black font-bold">Ya, ubah!</span>',
+                cancelButtonText: 'Batal',
+                background: '#1E293B',
+                color: '#ffffff',
+                customClass: {
+                    popup: 'border border-slate-700 rounded-3xl shadow-2xl',
+                },
+                backdrop: `
+                    rgba(0,0,0,0.6)
+                    backdrop-filter: blur(8px)
+                `
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $wire.toggleRole()
+                }
             });
         });
     </script>
+    @endscript
 </div>

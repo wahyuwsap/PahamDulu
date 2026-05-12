@@ -16,11 +16,11 @@ class ManageUsers extends Component
     public $userToToggle = null;
 
     public $isAddModalOpen = false;
-    public $name, $username, $email, $password, $role = 'student', $asal_instansi;
+    public $name, $username, $email, $password, $password_confirmation, $role = 'student', $asal_instansi;
 
     public function openAddModal()
     {
-        $this->reset(['name', 'username', 'email', 'password', 'role', 'asal_instansi']);
+        $this->reset(['name', 'username', 'email', 'password', 'password_confirmation', 'role', 'asal_instansi']);
         $this->isAddModalOpen = true;
     }
 
@@ -36,7 +36,7 @@ class ManageUsers extends Component
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'nullable|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,student',
             'asal_instansi' => 'required|string|max:255',
         ]);

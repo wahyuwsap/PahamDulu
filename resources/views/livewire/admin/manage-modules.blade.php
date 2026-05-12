@@ -328,33 +328,33 @@
         </template>
     @endif
 
+    @script
     <script>
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.on('swal:confirm-delete', (event) => {
-                Swal.fire({
-                    title: 'DELETE',
-                    text: "Hapus Data Modul Ini?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#94a3b8',
-                    confirmButtonText: 'Yes, delete!',
-                    cancelButtonText: 'Cancel',
-                    background: '#1E293B',
-                    color: '#ffffff',
-                    customClass: {
-                        popup: 'border border-slate-700 rounded-3xl shadow-2xl',
-                    },
-                    backdrop: `
-                        rgba(0,0,0,0.6)
-                        backdrop-filter: blur(8px)
-                    `
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        @this.call('deleteModule')
-                    }
-                });
+        $wire.on('swal:confirm-delete', () => {
+            Swal.fire({
+                title: 'DELETE',
+                text: "Hapus Data Modul Ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Yes, delete!',
+                cancelButtonText: 'Cancel',
+                background: '#1E293B',
+                color: '#ffffff',
+                customClass: {
+                    popup: 'border border-slate-700 rounded-3xl shadow-2xl',
+                },
+                backdrop: `
+                    rgba(0,0,0,0.6)
+                    backdrop-filter: blur(8px)
+                `
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $wire.deleteModule()
+                }
             });
         });
     </script>
+    @endscript
 </div>

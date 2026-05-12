@@ -41,7 +41,7 @@ class ManageModules extends Component
             'quizzes.*.option_b' => 'required|string',
             'quizzes.*.option_c' => 'required|string',
             'quizzes.*.option_d' => 'required|string',
-            'quizzes.*.correct_answer' => 'required|in:a,b,c,d',
+            'quizzes.*.correct_answer' => 'required|in:a,b,c,d,A,B,C,D',
         ];
     }
 
@@ -177,7 +177,7 @@ class ManageModules extends Component
                             'option_b' => $qData['option_b'],
                             'option_c' => $qData['option_c'],
                             'option_d' => $qData['option_d'],
-                            'correct_answer' => $qData['correct_answer']
+                            'correct_answer' => strtolower($qData['correct_answer'])
                         ]);
                         $keptQuizIds[] = $qData['id'];
                     } else {
@@ -187,7 +187,7 @@ class ManageModules extends Component
                             'option_b' => $qData['option_b'],
                             'option_c' => $qData['option_c'],
                             'option_d' => $qData['option_d'],
-                            'correct_answer' => $qData['correct_answer']
+                            'correct_answer' => strtolower($qData['correct_answer'])
                         ]);
                         $keptQuizIds[] = $newQ->id;
                     }
@@ -209,6 +209,7 @@ class ManageModules extends Component
                     return $v; })->toArray();
                 $quizzesData = collect($this->quizzes)->map(function ($q) {
                     unset($q['_key']);
+                    $q['correct_answer'] = strtolower($q['correct_answer']);
                     return $q; })->toArray();
 
                 $module->videos()->createMany($videosData);
