@@ -40,6 +40,7 @@ class Register extends Component
             'password' => Hash::make($this->password),
             'asal_instansi' => $this->asal_instansi,
             'negara' => 'Indonesia',
+            'role' => 'student',
         ]);
 
         Auth::login($user);
